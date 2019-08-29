@@ -1,0 +1,11 @@
+numpy
+# pytorch  # for anaconda, please refer to pytorch.org for installation
+scipy
+matplotlib
+open3d-python
+# to visualize it, you need tensorflow, but it doesn't have to be in the same virual environment :)
+tensorboardX
+MinkowskiEngine
+future-fstrings
+easydict
+joblib

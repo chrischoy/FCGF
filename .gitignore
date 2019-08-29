@@ -1,0 +1,8 @@
+# Temp files
+__pycache__
+*.swp
+*.swo
+*.orig
+.idea
+outputs/
+*.pyc
