@@ -69,12 +69,6 @@ net_arg.add_argument('--conv1_kernel_size', type=int, default=3)
 net_arg.add_argument('--normalize_feature', type=str2bool, default=False)
 net_arg.add_argument('--dist_type', type=str, default='L2')
 net_arg.add_argument('--best_val_metric', type=str, default='feat_match_ratio')
-net_arg.add_argument(
-    '--best_val_comparator',
-    type=str,
-    choices=['smaller', 'larger'],
-    default='larger',
-    help='X the better')
 
 # Optimizer arguments
 opt_arg = add_argument_group('Optimizer')
