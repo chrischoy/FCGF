@@ -18,6 +18,7 @@ from model import load_model
 import util.transform_estimation as te
 from lib.metrics import pdist, corr_dist
 from lib.timer import Timer, AverageMeter
+from lib.eval import find_nn_gpu
 
 from util.file import ensure_dir
 from util.misc import _hash
@@ -366,44 +367,11 @@ class ContrastiveLossTrainer(AlignmentTrainer):
       F0, F1 = F0[inds0], F1[inds1]
 
     # Compute the nn
-    nn_inds = self.find_nn_gpu(F0, F1)
+    nn_inds = find_nn_gpu(F0, F1, corr_max_n=self.config.corr_max_n)
     if subsample_size > 0 and subsample:
       return xyz0[inds0], xyz1[inds1[nn_inds]]
     else:
       return xyz0, xyz1[nn_inds]
-
-  def find_nn_gpu(self, F0, F1, k=1, return_distance=False):
-    # Too much memory if F0 or F1 large. Divide the F0
-    corr_max_n = self.config.corr_max_n
-    if corr_max_n > 1:
-      N = len(F0)
-      C = int(N / corr_max_n)
-      stride = corr_max_n
-      dists, inds = [], []
-      for i in range(C):
-        dist = pdist(F0[i * stride:(i + 1) * stride], F1, dist_type='SquareL2')
-        min_dist, ind = dist.min(dim=1)
-        dists.append(min_dist.detach().unsqueeze(1).cpu())
-        inds.append(ind.cpu())
-
-      if C * stride < N:
-        dist = pdist(F0[C * stride:], F1, dist_type='SquareL2')
-        min_dist, ind = dist.min(dim=1)
-        dists.append(min_dist.detach().unsqueeze(1).cpu())
-        inds.append(ind.cpu())
-
-      dists = torch.cat(dists)
-      inds = torch.cat(inds)
-      assert len(inds) == N
-    else:
-      dist = pdist(F0, F1, dist_type='SquareL2')
-      min_dist, inds = dist.min(dim=1)
-      dists = min_dist.detach().unsqueeze(1).cpu()
-      inds = inds.cpu()
-    if return_distance:
-      return inds, dists
-    else:
-      return inds
 
   def evaluate_hit_ratio(self, xyz0, xyz1, T_gth, thresh=0.1):
     xyz0 = self.apply_transform(xyz0, T_gth)

@@ -101,8 +101,8 @@ misc_arg.add_argument('--fast_validation', type=str2bool, default=False)
 misc_arg.add_argument(
     '--corr_max_n',
     type=int,
-    default=6,
-    help='Number of chunks to divide features to find nearest neighbors')
+    default=5000,
+    help='The maximum number of features to find nearest neighbors in batch')
 
 # Dataset specific configurations
 data_arg = add_argument_group('Data')
