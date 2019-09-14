@@ -147,7 +147,7 @@ class IndoorPairDataset(PairDataset):
                config=None):
     PairDataset.__init__(self, phase, transform, random_rotation, random_scale,
                          manual_seed, config)
-    self.root = root = config.data_dir_10mm if config.use_10mm else config.data_dir_25mm
+    self.root = root = config.threed_match_dir
     logging.info(f"Loading the subset {phase} from {root}")
 
     subset_names = open(self.DATA_FILES[phase]).read().split()

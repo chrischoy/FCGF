@@ -18,7 +18,7 @@ logging_arg = add_argument_group('Logging')
 logging_arg.add_argument('--out_dir', type=str, default='outputs')
 
 trainer_arg = add_argument_group('Trainer')
-trainer_arg.add_argument('--trainer', type=str, default='HardContrastiveLossTrainer')
+trainer_arg.add_argument('--trainer', type=str, default='HardestContrastiveLossTrainer')
 trainer_arg.add_argument('--save_freq_epoch', type=int, default=1)
 trainer_arg.add_argument('--batch_size', type=int, default=4)
 trainer_arg.add_argument('--val_batch_size', type=int, default=1)
@@ -64,9 +64,9 @@ trainer_arg.add_argument('--triplet_num_rand', type=int, default=1024)
 # dNetwork specific configurations
 net_arg = add_argument_group('Network')
 net_arg.add_argument('--model', type=str, default='SimpleNetBN2C')
-net_arg.add_argument('--model_n_out', type=int, default=32, help='Feature dimension')
+net_arg.add_argument('--model_n_out', type=int, default=16, help='Feature dimension')
 net_arg.add_argument('--conv1_kernel_size', type=int, default=3)
-net_arg.add_argument('--normalize_feature', type=str2bool, default=False)
+net_arg.add_argument('--normalize_feature', type=str2bool, default=True)
 net_arg.add_argument('--dist_type', type=str, default='L2')
 net_arg.add_argument('--best_val_metric', type=str, default='feat_match_ratio')
 
@@ -109,14 +109,9 @@ data_arg = add_argument_group('Data')
 data_arg.add_argument('--dataset', type=str, default='ThreeDMatchPairDataset')
 data_arg.add_argument('--voxel_size', type=float, default=0.05)
 data_arg.add_argument(
-    '--data_dir_25mm',
-    type=str,
-    default="/home/chrischoy/datasets/FCGF/dataset_full_25")
-data_arg.add_argument(
-    '--data_dir_10mm', type=str, default="/home/chrischoy/datasets/FCGF/dataset_full")
+    '--threed_match_dir', type=str, default="/home/chrischoy/datasets/FCGF/threedmatch")
 data_arg.add_argument(
     '--kitti_root', type=str, default="/home/chrischoy/datasets/FCGF/kitti/")
-data_arg.add_argument('--use_10mm', type=str2bool, default=False)
 data_arg.add_argument(
     '--kitti_max_time_diff',
     type=int,
