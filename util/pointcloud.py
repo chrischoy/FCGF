@@ -7,44 +7,41 @@ from lib.eval import find_nn_cpu
 
 
 def make_open3d_point_cloud(xyz, color=None):
-  pcd = o3d.PointCloud()
-  pcd.points = o3d.Vector3dVector(xyz)
+  pcd = o3d.geometry.PointCloud()
+  pcd.points = o3d.utility.Vector3dVector(xyz)
   if color is not None:
-    pcd.colors = o3d.Vector3dVector(color)
+    pcd.colors = o3d.utility.Vector3dVector(color)
   return pcd
 
 
 def make_open3d_feature(data, dim, npts):
-  feature = o3d.Feature()
+  feature = o3d.geometry.Feature()
   feature.resize(dim, npts)
   feature.data = data.cpu().numpy().astype('d').transpose()
   return feature
 
 
-def make_open3d_feature_from_numpy(data, dim, npts):
-  feature = o3d.Feature()
-  feature.resize(dim, npts)
+def make_open3d_feature_from_numpy(data):
+  assert isinstance(data, np.ndarray)
+  assert data.ndim == 2
+
+  feature = o3d.registration.Feature()
+  feature.resize(data.shape[1], data.shape[0])
   feature.data = data.astype('d').transpose()
   return feature
 
 
-def prepare_single_pointcloud(pcd, voxel_size, debug_mode):
-  o3d.estimate_normals(pcd,
-                       o3d.KDTreeSearchParamHybrid(radius=voxel_size * 2.0, max_nn=30))
-  return pcd
-
-
 def prepare_pointcloud(filename, voxel_size):
-  pcd = o3d.read_point_cloud(filename)
+  pcd = o3d.io.read_point_cloud(filename)
   T = get_random_transformation(pcd)
   pcd.transform(T)
-  pcd_down = o3d.voxel_down_sample(pcd, voxel_size)
+  pcd_down = pcd.voxel_down_sample(voxel_size)
   return pcd_down, T
 
 
 def compute_overlap_ratio(pcd0, pcd1, trans, voxel_size):
-  pcd0_down = o3d.voxel_down_sample(pcd0, voxel_size)
-  pcd1_down = o3d.voxel_down_sample(pcd1, voxel_size)
+  pcd0_down = pcd0.voxel_down_sample(voxel_size)
+  pcd1_down = pcd1.voxel_down_sample(voxel_size)
   matching01 = get_matching_indices(pcd0_down, pcd1_down, trans, voxel_size, 1)
   matching10 = get_matching_indices(pcd1_down, pcd0_down, np.linalg.inv(trans),
                                     voxel_size, 1)
@@ -57,7 +54,7 @@ def get_matching_indices(source, target, trans, search_voxel_size, K=None):
   source_copy = copy.deepcopy(source)
   target_copy = copy.deepcopy(target)
   source_copy.transform(trans)
-  pcd_tree = o3d.KDTreeFlann(target_copy)
+  pcd_tree = o3d.geometry.KDTreeFlann(target_copy)
 
   match_inds = []
   for i, point in enumerate(source_copy.points):
@@ -71,7 +68,7 @@ def get_matching_indices(source, target, trans, search_voxel_size, K=None):
 
 def evaluate_feature(pcd0, pcd1, feat0, feat1, trans_gth, search_voxel_size):
   match_inds = get_matching_indices(pcd0, pcd1, trans_gth, search_voxel_size)
-  pcd_tree = o3d.KDTreeFlann(feat1)
+  pcd_tree = o3d.geometry.KDTreeFlann(feat1)
   dist = []
   for ind in match_inds:
     k, idx, _ = pcd_tree.search_knn_vector_xd(feat0.data[:, ind[0]], 1)
@@ -86,8 +83,8 @@ def evaluate_feature(pcd0, pcd1, feat0, feat1, trans_gth, search_voxel_size):
 def valid_feat_ratio(pcd0, pcd1, feat0, feat1, trans_gth, thresh=0.1):
   pcd0_copy = copy.deepcopy(pcd0)
   pcd0_copy.transform(trans_gth)
-  inds = find_nn_cpu(feat0, feat1, use_open3d_feature_type=True)
-  dist = np.sqrt(((np.array(pcd0_copy.points) - np.array(pcd1.points)[inds]) ** 2).sum(1))
+  inds = find_nn_cpu(feat0, feat1, return_distance=False)
+  dist = np.sqrt(((np.array(pcd0_copy.points) - np.array(pcd1.points)[inds])**2).sum(1))
   return np.mean(dist < thresh)
 
 
@@ -107,7 +104,7 @@ def get_matching_matrix(source, target, trans, voxel_size, debug_mode):
   source_copy = copy.deepcopy(source)
   target_copy = copy.deepcopy(target)
   source_copy.transform(trans)
-  pcd_tree = o3d.KDTreeFlann(target_copy)
+  pcd_tree = o3d.geometry.KDTreeFlann(target_copy)
   matching_matrix = np.zeros((len(source_copy.points), len(target_copy.points)))
 
   for i, point in enumerate(source_copy.points):

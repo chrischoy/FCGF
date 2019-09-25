@@ -199,10 +199,10 @@ class IndoorPairDataset(PairDataset):
     pcd1 = make_open3d_point_cloud(xyz1)
 
     # Select features and points using the returned voxelized indices
-    pcd0.colors = o3d.Vector3dVector(color0[sel0])
-    pcd1.colors = o3d.Vector3dVector(color1[sel1])
-    pcd0.points = o3d.Vector3dVector(np.array(pcd0.points)[sel0])
-    pcd1.points = o3d.Vector3dVector(np.array(pcd1.points)[sel1])
+    pcd0.colors = o3d.utility.Vector3dVector(color0[sel0])
+    pcd1.colors = o3d.utility.Vector3dVector(color1[sel1])
+    pcd0.points = o3d.utility.Vector3dVector(np.array(pcd0.points)[sel0])
+    pcd1.points = o3d.utility.Vector3dVector(np.array(pcd1.points)[sel1])
     # Get matches
     matches = get_matching_indices(pcd0, pcd1, trans, matching_search_voxel_size)
 
@@ -465,8 +465,8 @@ class KITTIPairDataset(PairDataset):
     pcd1 = make_open3d_point_cloud(xyz1)
 
     # Select features and points using the returned voxelized indices
-    pcd0.points = o3d.Vector3dVector(np.array(pcd0.points)[sel0])
-    pcd1.points = o3d.Vector3dVector(np.array(pcd1.points)[sel1])
+    pcd0.points = o3d.utility.Vector3dVector(np.array(pcd0.points)[sel0])
+    pcd1.points = o3d.utility.Vector3dVector(np.array(pcd1.points)[sel1])
 
     # Get matches
     matches = get_matching_indices(pcd0, pcd1, trans, matching_search_voxel_size)

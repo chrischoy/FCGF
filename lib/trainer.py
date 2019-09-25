@@ -367,7 +367,7 @@ class ContrastiveLossTrainer(AlignmentTrainer):
       F0, F1 = F0[inds0], F1[inds1]
 
     # Compute the nn
-    nn_inds = find_nn_gpu(F0, F1, corr_max_n=self.config.corr_max_n)
+    nn_inds = find_nn_gpu(F0, F1, nn_max_n=self.config.nn_max_n)
     if subsample_size > 0 and subsample:
       return xyz0[inds0], xyz1[inds1[nn_inds]]
     else:

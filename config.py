@@ -74,7 +74,7 @@ net_arg.add_argument('--best_val_metric', type=str, default='feat_match_ratio')
 opt_arg = add_argument_group('Optimizer')
 opt_arg.add_argument('--optimizer', type=str, default='SGD')
 opt_arg.add_argument('--max_epoch', type=int, default=100)
-opt_arg.add_argument('--lr', type=float, default=1e-0)
+opt_arg.add_argument('--lr', type=float, default=1e-1)
 opt_arg.add_argument('--momentum', type=float, default=0.8)
 opt_arg.add_argument('--sgd_momentum', type=float, default=0.9)
 opt_arg.add_argument('--sgd_dampening', type=float, default=0.1)
@@ -99,9 +99,9 @@ misc_arg.add_argument('--val_num_thread', type=int, default=1)
 misc_arg.add_argument('--test_num_thread', type=int, default=2)
 misc_arg.add_argument('--fast_validation', type=str2bool, default=False)
 misc_arg.add_argument(
-    '--corr_max_n',
+    '--nn_max_n',
     type=int,
-    default=5000,
+    default=500,
     help='The maximum number of features to find nearest neighbors in batch')
 
 # Dataset specific configurations

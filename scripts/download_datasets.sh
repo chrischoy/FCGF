@@ -22,7 +22,7 @@ function download() {
     echo ${urls[@]} | xargs -n 1 -P 3 wget --no-check-certificate -q -c --show-progress $0 
 
     echo ">> Unpack .zip file"
-    for filename in *.gz
+    for filename in *.tgz
     do
         tar -xvzf $filename -C ../
     done

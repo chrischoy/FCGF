@@ -4,9 +4,7 @@ import sys
 import numpy as np
 import argparse
 import logging
-# TODO: 'import open3d as o3d makes run-time error when it is used with joblib parallel
-# TODO: For the best performance, need to use single-threaded Open3D by compiling it from source with USE_OPENMP == OFF
-from open3d import *
+import open3d as o3d
 
 from lib.timer import Timer, AverageMeter
 
@@ -26,8 +24,7 @@ logging.getLogger().setLevel(logging.INFO)
 logging.basicConfig(
     format='%(asctime)s %(message)s', datefmt='%m/%d %H:%M:%S', handlers=[ch])
 
-set_verbosity_level(VerbosityLevel.Error)
-PARALLEL = False
+o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel.Error)
 
 
 def extract_features_batch(model, config, source_path, target_path, voxel_size, device):
@@ -46,7 +43,7 @@ def extract_features_batch(model, config, source_path, target_path, voxel_size, 
     f.write("%s %d\n" % (fo_base, len(files)))
     for i, fi in enumerate(files):
       # Extract features from a file
-      pcd = read_point_cloud(fi)
+      pcd = o3d.io.read_point_cloud(fi)
       save_fn = "%s_%03d" % (fo_base, i)
       if i % 100 == 0:
         logging.info(f"{i} / {len(files)}: {save_fn}")
@@ -84,7 +81,6 @@ def do_single_pair_evaluation(feature_path,
                               voxel_size,
                               tau_1=0.1,
                               tau_2=0.05,
-                              keypoint_path=None,
                               num_rand_keypoints=-1):
   trans_gth = np.linalg.inv(traj.pose)
   i = traj.metadata[0]
@@ -120,9 +116,7 @@ def do_single_pair_evaluation(feature_path,
     coord_j, feat_j = coord_j[inds_j], feat_j[inds_j]
 
   coord_i = make_open3d_point_cloud(coord_i)
-  feat_i = make_open3d_feature_from_numpy(feat_i, 32, len(feat_i))
   coord_j = make_open3d_point_cloud(coord_j)
-  feat_j = make_open3d_feature_from_numpy(feat_j, 32, len(feat_j))
 
   hit_ratio = evaluate_feature_3dmatch(coord_i, coord_j, feat_i, feat_j, trans_gth,
                                        tau_1)
@@ -134,18 +128,14 @@ def do_single_pair_evaluation(feature_path,
     return False
 
 
-def do_feature_evaluation(source_path,
-                          feature_path,
-                          voxel_size,
-                          keypoint_path=None,
-                          num_rand_keypoints=-1):
+def do_feature_evaluation(source_path, feature_path, voxel_size, num_rand_keypoints=-1):
   with open(os.path.join(feature_path, "list.txt")) as f:
     sets = f.readlines()
     sets = [x.strip().split() for x in sets]
 
   tau_1 = 0.1  # 10cm
   tau_2 = 0.05  # 5% inlier
-  print("%f %f" % (tau_1, tau_2))
+  logging.info("%f %f" % (tau_1, tau_2))
   recall = []
   for s in sets:
     set_name = s[0]
@@ -154,16 +144,16 @@ def do_feature_evaluation(source_path,
     for i in range(len(traj)):
       results.append(
           do_single_pair_evaluation(feature_path, set_name, traj[i], voxel_size, tau_1,
-                                    tau_2, keypoint_path, num_rand_keypoints))
+                                    tau_2, num_rand_keypoints))
 
     mean_recall = np.array(results).mean()
     std_recall = np.array(results).std()
     recall.append([set_name, mean_recall, std_recall])
     logging.info(f'{set_name}: {mean_recall} +- {std_recall}')
   for r in recall:
-    print("%s : %.4f" % (r[0], r[1]))
+    logging.info("%s : %.4f" % (r[0], r[1]))
   scene_r = np.array([r[1] for r in recall])
-  print("average : %.4f +- %.4f" % (scene_r.mean(), scene_r.std()))
+  logging.info("average : %.4f +- %.4f" % (scene_r.mean(), scene_r.std()))
 
 
 if __name__ == '__main__':
@@ -200,8 +190,6 @@ if __name__ == '__main__':
       type=int,
       default=-1,
       help='Number of random keypoints for each scene')
-  parser.add_argument(
-      '--keypoint_path', default='/data/chrischoy/datasets/FCGF/3DMatchKeypoints')
 
   args = parser.parse_args()
 
@@ -229,5 +217,5 @@ if __name__ == '__main__':
 
   if args.do_exp_feature:
     assert (args.target is not None)
-    do_feature_evaluation(args.source, args.target, args.voxel_size, args.keypoint_path,
+    do_feature_evaluation(args.source, args.target, args.voxel_size,
                           args.num_rand_keypoints)
