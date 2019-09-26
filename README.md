@@ -24,3 +24,9 @@ Follow the instruction on [KITTI Odometry website](http://www.cvlibs.net/dataset
 ```
 python train.py --threed_match_dir /path/to/threedmatch/
 ```
+
+## 3DMatch Benchmark Evaluation
+
+```
+python benchmark_3dmatch.py --source /path/to/threedmatch --target ./features_tmp/ --voxel_size 0.025 --model ~/outputs/checkpoint.pth --do_generate --do_exp_feature --with_cuda
+```

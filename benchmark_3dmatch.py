@@ -179,16 +179,12 @@ if __name__ == '__main__':
       type=float,
       help='voxel size to preprocess point cloud')
   parser.add_argument('--do_generate', action='store_true')
-  parser.add_argument('--do_generate_log_info', action='store_true')
-  parser.add_argument('--do_visualize', action='store_true')
-  parser.add_argument('--do_exp_matching', action='store_true')
   parser.add_argument('--do_exp_feature', action='store_true')
-  parser.add_argument('--do_analysis_dataset', action='store_true')
   parser.add_argument('--with_cuda', action='store_true')
   parser.add_argument(
       '--num_rand_keypoints',
       type=int,
-      default=-1,
+      default=5000,
       help='Number of random keypoints for each scene')
 
   args = parser.parse_args()
