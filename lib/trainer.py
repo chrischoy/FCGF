@@ -119,11 +119,11 @@ class AlignmentTrainer:
         self.writer.add_scalar(f'val/{k}', v, 0)
 
     for epoch in range(self.start_epoch, self.max_epoch + 1):
-      self.scheduler.step()
       lr = self.scheduler.get_lr()
       logging.info(f" Epoch: {epoch}, LR: {lr}")
       self._train_epoch(epoch)
       self._save_checkpoint(epoch)
+      self.scheduler.step()
 
       if self.test_valid and epoch % self.val_epoch_freq == 0:
         val_dict = self._valid_epoch()

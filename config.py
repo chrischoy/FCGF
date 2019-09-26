@@ -63,9 +63,9 @@ trainer_arg.add_argument('--triplet_num_rand', type=int, default=1024)
 
 # dNetwork specific configurations
 net_arg = add_argument_group('Network')
-net_arg.add_argument('--model', type=str, default='SimpleNetBN2C')
-net_arg.add_argument('--model_n_out', type=int, default=16, help='Feature dimension')
-net_arg.add_argument('--conv1_kernel_size', type=int, default=3)
+net_arg.add_argument('--model', type=str, default='ResUNetBN2C')
+net_arg.add_argument('--model_n_out', type=int, default=32, help='Feature dimension')
+net_arg.add_argument('--conv1_kernel_size', type=int, default=5)
 net_arg.add_argument('--normalize_feature', type=str2bool, default=True)
 net_arg.add_argument('--dist_type', type=str, default='L2')
 net_arg.add_argument('--best_val_metric', type=str, default='feat_match_ratio')
@@ -107,7 +107,7 @@ misc_arg.add_argument(
 # Dataset specific configurations
 data_arg = add_argument_group('Data')
 data_arg.add_argument('--dataset', type=str, default='ThreeDMatchPairDataset')
-data_arg.add_argument('--voxel_size', type=float, default=0.05)
+data_arg.add_argument('--voxel_size', type=float, default=0.025)
 data_arg.add_argument(
     '--threed_match_dir', type=str, default="/home/chrischoy/datasets/FCGF/threedmatch")
 data_arg.add_argument(
