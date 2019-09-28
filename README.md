@@ -19,6 +19,23 @@ CGF by Khoury et al. maps 3D oriented histograms to a low-dimensional feature sp
 Our work addressed a number of limitations in the prior work. First, all prior approaches extract a small 3D patch or a set of points and map it to a low-dimensional space. This not only limits the receptive field of the network but is also computationally inefficient since all intermediate representations are computed separately even for overlapping 3D regions. Second, using expensive low-level geometric signatures as input can slow down feature computation. Lastly, limiting feature extraction to a subset of interest points results in lower spatial resolution for subsequent matching stages and can thus reduce registration accuracy.
 
 
+### Fully Convolutional Metric Learning  and Hardest Contrastive, Hardest Triplet Loss
+
+Traditional metric learning assumes that the features are independent and identically distributed (i.i.d.) since a batch is constructed by random sampling. However, in fully-convolutional feature extraction, adjacent features are locally correlated. Thus, hard-negative mining could find features adjacent to anchors, and they are false negatives. Thus, filtering out the false negatives is crucial similar to how Universal Correspondence Network by Choy et al. used a distance threshold.
+
+Also, the number of features used in the fully-convolutional setting is orders of magnitude larger than in standard metric learning algorithms. For instance, FCGF generates ~40k features for a pair of scans (this increases proportionally with the batch size) while a minibatch in traditional metric learning has around 1k features. Thus, it is not feasible to use all pairwise distances within a batch as in standard metric learning.
+
+To speed up the fully-convolutional feature learning, we propose hardest contrastive loss and hardest triplet loss. Visually, these are simple variants that use the hardest negatives for both of points within a positive pair.
+
+| Contrastive Loss   | Triplet Loss       | Hardest Contrastive | Hardest Triplet    |
+|:------------------:|:------------------:|:-------------------:|:------------------:|
+| ![1](images/1.png) | ![2](images/2.png) | ![3](images/3.png)  | ![4](images/4.png) |
+
+*Sampling and negative-mining strategy for each method. Blue: positives, Red: Negatives. Traditional contrastive and triplet losses use random sampling. Our hardest-contrastive and hardest-triplet losses use the hardest negatives.*
+
+Please refer to our [ICCV'19 paper](https://node1.chrischoy.org/data/publications/fcgf/fcgf.pdf) for more details.
+
+
 ### Visualization of FCGF
 
 We color-coded FCGF features for pairs of 3D scans that are 10m apart for KITTI and a 3DMatch benchmark pair for indoor scans. FCGF features are mapped to a scalar space using t-SNE and colorized with the Spectral color map.
