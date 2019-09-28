@@ -202,7 +202,13 @@ if __name__ == '__main__':
 
     num_feats = 1
     Model = load_model(config.model)
-    model = Model(num_feats, config.model_n_out, config=config)
+    model = Model(
+        num_feats,
+        config.model_n_out,
+        bn_momentum=0.05,
+        normalize_feature=config.normalize_feature,
+        conv1_kernel_size=config.conv1_kernel_size,
+        D=3)
     model.load_state_dict(checkpoint['state_dict'])
     model.eval()
 

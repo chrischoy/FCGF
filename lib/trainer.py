@@ -38,7 +38,13 @@ class AlignmentTrainer:
 
     # Model initialization
     Model = load_model(config.model)
-    model = Model(num_feats, config.model_n_out, config=config)
+    model = Model(
+        num_feats,
+        config.model_n_out,
+        bn_momentum=config.bn_momentum,
+        normalize_feature=config.normalize_feature,
+        conv1_kernel_size=config.conv1_kernel_size,
+        D=3)
 
     if config.weights:
       checkpoint = torch.load(config.weights)
