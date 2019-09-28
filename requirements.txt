@@ -2,10 +2,11 @@ numpy
 # pytorch  # for anaconda, please refer to pytorch.org for installation
 scipy
 matplotlib
-open3d-python
+open3d
 # to visualize it, you need tensorflow, but it doesn't have to be in the same virual environment :)
 tensorboardX
-# MinkowskiEngine
+# MinkowskiEngine  # Follow the installation instruction on github.com/StanfordVL/MinkowskiEngine
 future-fstrings
 easydict
 joblib
+scikit-learn

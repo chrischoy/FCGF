@@ -13,7 +13,7 @@ from util.misc import extract_features
 from model import load_model
 from util.file import ensure_dir, get_folder_list, get_file_list
 from util.trajectory import read_trajectory
-from util.pointcloud import make_open3d_point_cloud, make_open3d_feature_from_numpy, evaluate_feature_3dmatch
+from util.pointcloud import make_open3d_point_cloud, evaluate_feature_3dmatch
 
 import torch
 

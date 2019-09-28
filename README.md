@@ -81,6 +81,22 @@ For training, download the preprocessed 3DMatch benchmark dataset.
 For KITTI training, follow the instruction on [KITTI Odometry website](http://www.cvlibs.net/datasets/kitti/eval_odometry.php) to download the KITTI odometry training set.
 
 
+## Demo: Extracting and color coding FCGF
+
+After installation, you can run the demo script by
+
+```
+python demo.py
+```
+
+The demo script will first extract FCGF features from a mesh file generated from a kitchen scene. Next, it will color code the features independent of their spatial location.
+After the color mapping using TSNE, the demo script will visualize the color coded features by coloring the input point cloud.
+
+![demo](./images/demo.png)
+
+*You may have to rotate the scene to get the above visualization.*
+
+
 ## Training and running 3DMatch benchmark
 
 ```
@@ -90,7 +106,12 @@ python train.py --threed_match_dir /path/to/threedmatch/
 For benchmarking the trained weights on 3DMatch, download the 3DMatch Geometric Registration Benchmark dataset from [here](http://3dmatch.cs.princeton.edu/) and follow:
 
 ```
-python benchmark_3dmatch.py --source /path/to/threedmatch --target ./features_tmp/ --voxel_size 0.025 --model ~/outputs/checkpoint.pth --do_generate --do_exp_feature --with_cuda
+python -m scripts.benchmark_3dmatch.py \
+    --source /path/to/threedmatch \
+    --target ./features_tmp/ \
+    --voxel_size 0.025 \
+    --model ~/outputs/checkpoint.pth \
+    --do_generate --do_exp_feature --with_cuda
 ```
 
 ## Model Zoo
@@ -116,3 +137,7 @@ FCGF will be presented at ICCV'19: Friday, November 1, 2019, 1030–1300 Poster 
     year = {2019},
 }
 ```
+
+## Acknowledgements
+
+We want to thank all the ICCV reviewers, especially R2, for suggestions and valuable pointers.
