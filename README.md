@@ -26,6 +26,7 @@ Traditional metric learning assumes that the features are independent and identi
 Also, the number of features used in the fully-convolutional setting is orders of magnitude larger than in standard metric learning algorithms. For instance, FCGF generates ~40k features for a pair of scans (this increases proportionally with the batch size) while a minibatch in traditional metric learning has around 1k features. Thus, it is not feasible to use all pairwise distances within a batch as in standard metric learning.
 
 To speed up the fully-convolutional feature learning, we propose hardest contrastive loss and hardest triplet loss. Visually, these are simple variants that use the hardest negatives for both of points within a positive pair.
+One of the key advantages of the hardest-contrastive loss is that you do not need to save the temporary variables used to find the hardest negatives. This allows finding hardest negatives among a large number of feature. [Here](https://github.com/chrischoy/open-ucn/blob/master/lib/ucn_trainer.py#L435), we used almost 40k features to mine the hardest negative and free all intermediate variables once the indices of the hardest negatives are found.
 
 | Contrastive Loss   | Triplet Loss       | Hardest Contrastive | Hardest Triplet    |
 |:------------------:|:------------------:|:-------------------:|:------------------:|
