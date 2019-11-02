@@ -1,11 +1,22 @@
+import open3d as o3d
 import os
 import logging
 import numpy as np
 
 from util.trajectory import CameraPose
-from util.baseline import run_ransac
 from util.pointcloud import compute_overlap_ratio, \
     make_open3d_point_cloud, make_open3d_feature_from_numpy
+
+
+def run_ransac(xyz0, xyz1, feat0, feat1, voxel_size):
+  distance_threshold = voxel_size * 1.5
+  result_ransac = o3d.registration.registration_ransac_based_on_feature_matching(
+      xyz0, xyz1, feat0, feat1, distance_threshold,
+      o3d.registration.TransformationEstimationPointToPoint(False), 4, [
+          o3d.registration.CorrespondenceCheckerBasedOnEdgeLength(0.9),
+          o3d.registration.CorrespondenceCheckerBasedOnDistance(distance_threshold)
+      ], o3d.registration.RANSACConvergenceCriteria(4000000, 500))
+  return result_ransac.transformation
 
 
 def gather_results(results):
@@ -40,9 +51,9 @@ def do_single_pair_matching(feature_path, set_name, m, voxel_size):
   points_i, xyz_i, feat_i = read_data(feature_path, name_i)
   points_j, xyz_j, feat_j = read_data(feature_path, name_j)
   if len(xyz_i.points) < len(xyz_j.points):
-    trans = run_ransac(xyz_i, xyz_j, feat_i, feat_j, voxel_size).cpu().numpy()
+    trans = run_ransac(xyz_i, xyz_j, feat_i, feat_j, voxel_size)
   else:
-    trans = run_ransac(xyz_j, xyz_i, feat_j, feat_i, voxel_size).cpu().numpy()
+    trans = run_ransac(xyz_j, xyz_i, feat_j, feat_i, voxel_size)
     trans = np.linalg.inv(trans)
   ratio = compute_overlap_ratio(xyz_i, xyz_j, trans, voxel_size)
   logging.info(f"{ratio}")
