@@ -25,3 +25,12 @@ def read_trajectory(filename, dim=4):
       traj.append(CameraPose(metadata, mat))
       metastr = f.readline()
     return traj
+
+
+def write_trajectory(traj, filename, dim=4):
+  with open(filename, 'w') as f:
+    for x in traj:
+      p = x.pose.tolist()
+      f.write(' '.join(map(str, x.metadata)) + '\n')
+      f.write('\n'.join(' '.join(map('{0:.12f}'.format, p[i])) for i in range(dim)))
+      f.write('\n')

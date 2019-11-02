@@ -1,4 +1,6 @@
-# -*- coding: future_fstrings -*-
+"""
+A collection of unrefactored functions.
+"""
 import os
 import sys
 import numpy as np
@@ -12,8 +14,9 @@ from util.misc import extract_features
 
 from model import load_model
 from util.file import ensure_dir, get_folder_list, get_file_list
-from util.trajectory import read_trajectory
+from util.trajectory import read_trajectory, write_trajectory
 from util.pointcloud import make_open3d_point_cloud, evaluate_feature_3dmatch
+from scripts.benchmark_util import do_single_pair_matching, gen_matching_pair, gather_results
 
 import torch
 
@@ -73,6 +76,29 @@ def extract_features_batch(model, config, source_path, target_path, voxel_size, 
         )
 
   f.close()
+
+
+def do_registration(feature_path, voxel_size):
+  """
+  Gather .log files produced in --target folder and run this Matlab script
+  https://github.com/andyzeng/3dmatch-toolbox#geometric-registration-benchmark
+  (see Geometric Registration Benchmark section in
+  http://3dmatch.cs.princeton.edu/)
+  """
+  # List file from the extract_features_batch function
+  with open(os.path.join(feature_path, "list.txt")) as f:
+    sets = f.readlines()
+    sets = [x.strip().split() for x in sets]
+  for s in sets:
+    set_name = s[0]
+    pts_num = int(s[1])
+    matching_pairs = gen_matching_pair(pts_num)
+    results = []
+    for m in matching_pairs:
+      results.append(do_single_pair_matching(feature_path, set_name, m, voxel_size))
+    traj = gather_results(results)
+    logging.info(f"Writing the trajectory to {feature_path}/{set_name}.log")
+    write_trajectory(traj, "%s.log" % (os.path.join(feature_path, set_name)))
 
 
 def do_single_pair_evaluation(feature_path,
@@ -180,6 +206,10 @@ if __name__ == '__main__':
       help='voxel size to preprocess point cloud')
   parser.add_argument('--do_generate', action='store_true')
   parser.add_argument('--do_exp_feature', action='store_true')
+  parser.add_argument(
+      '--do_exp_registration',
+      action='store_true',
+      help='The target directory must contain extracted features')
   parser.add_argument('--with_cuda', action='store_true')
   parser.add_argument(
       '--num_rand_keypoints',
@@ -221,3 +251,7 @@ if __name__ == '__main__':
     assert (args.target is not None)
     do_feature_evaluation(args.source, args.target, args.voxel_size,
                           args.num_rand_keypoints)
+
+  if args.do_exp_registration:
+    assert (args.target is not None)
+    do_registration(args.target, args.voxel_size)
