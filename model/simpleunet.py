@@ -110,13 +110,13 @@ class SimpleNet(ME.MinkowskiNetwork):
     out = self.norm3_tr(out)
     out_s2_tr = MEF.relu(out)
 
-    out = ME.cat((out_s2_tr, out_s2))
+    out = ME.cat(out_s2_tr, out_s2)
 
     out = self.conv2_tr(out)
     out = self.norm2_tr(out)
     out_s1_tr = MEF.relu(out)
 
-    out = ME.cat((out_s1_tr, out_s1))
+    out = ME.cat(out_s1_tr, out_s1)
     out = self.conv1_tr(out)
     out = self.norm1_tr(out)
     out = MEF.relu(out)
@@ -273,19 +273,19 @@ class SimpleNet2(ME.MinkowskiNetwork):
     out = self.norm4_tr(out)
     out_s4_tr = MEF.relu(out)
 
-    out = ME.cat((out_s4_tr, out_s4))
+    out = ME.cat(out_s4_tr, out_s4)
 
     out = self.conv3_tr(out)
     out = self.norm3_tr(out)
     out_s2_tr = MEF.relu(out)
 
-    out = ME.cat((out_s2_tr, out_s2))
+    out = ME.cat(out_s2_tr, out_s2)
 
     out = self.conv2_tr(out)
     out = self.norm2_tr(out)
     out_s1_tr = MEF.relu(out)
 
-    out = ME.cat((out_s1_tr, out_s1))
+    out = ME.cat(out_s1_tr, out_s1)
     out = self.conv1_tr(out)
     out = self.norm1_tr(out)
     out = MEF.relu(out)
@@ -475,25 +475,25 @@ class SimpleNet3(ME.MinkowskiNetwork):
     out = self.norm5_tr(out)
     out_s8_tr = MEF.relu(out)
 
-    out = ME.cat((out_s8_tr, out_s8))
+    out = ME.cat(out_s8_tr, out_s8)
 
     out = self.conv4_tr(out)
     out = self.norm4_tr(out)
     out_s4_tr = MEF.relu(out)
 
-    out = ME.cat((out_s4_tr, out_s4))
+    out = ME.cat(out_s4_tr, out_s4)
 
     out = self.conv3_tr(out)
     out = self.norm3_tr(out)
     out_s2_tr = MEF.relu(out)
 
-    out = ME.cat((out_s2_tr, out_s2))
+    out = ME.cat(out_s2_tr, out_s2)
 
     out = self.conv2_tr(out)
     out = self.norm2_tr(out)
     out_s1_tr = MEF.relu(out)
 
-    out = ME.cat((out_s1_tr, out_s1))
+    out = ME.cat(out_s1_tr, out_s1)
     out = self.conv1_tr(out)
 
     if self.normalize_feature:

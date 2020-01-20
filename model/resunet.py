@@ -165,21 +165,21 @@ class ResUNet2(ME.MinkowskiNetwork):
     out = self.block4_tr(out)
     out_s4_tr = MEF.relu(out)
 
-    out = ME.cat((out_s4_tr, out_s4))
+    out = ME.cat(out_s4_tr, out_s4)
 
     out = self.conv3_tr(out)
     out = self.norm3_tr(out)
     out = self.block3_tr(out)
     out_s2_tr = MEF.relu(out)
 
-    out = ME.cat((out_s2_tr, out_s2))
+    out = ME.cat(out_s2_tr, out_s2)
 
     out = self.conv2_tr(out)
     out = self.norm2_tr(out)
     out = self.block2_tr(out)
     out_s1_tr = MEF.relu(out)
 
-    out = ME.cat((out_s1_tr, out_s1))
+    out = ME.cat(out_s1_tr, out_s1)
     out = self.conv1_tr(out)
     out = MEF.relu(out)
     out = self.final(out)
