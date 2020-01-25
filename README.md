@@ -142,3 +142,14 @@ FCGF will be presented at ICCV'19: Friday, November 1, 2019, 1030–1300 Poster 
 ## Acknowledgements
 
 We want to thank all the ICCV reviewers, especially R2, for suggestions and valuable pointers.
+
+
+## Related Projects
+
+- [Minkowski Engine](https://github.com/StanfordVL/MinkowskiEngine)
+- [4D Spatio Temporal Semantic Segmentation](https://github.com/chrischoy/SpatioTemporalSegmentation)
+
+
+## Projects using FCGF
+
+- [Learning multiview 3D point cloud registration](https://arxiv.org/abs/2001.05119)
