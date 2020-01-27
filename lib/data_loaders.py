@@ -25,8 +25,7 @@ kitti_icp_cache = {}
 def collate_pair_fn(list_data):
   xyz0, xyz1, coords0, coords1, feats0, feats1, matching_inds, trans = list(
       zip(*list_data))
-  xyz_batch0, coords_batch0, feats_batch0 = [], [], []
-  xyz_batch1, coords_batch1, feats_batch1 = [], [], []
+  xyz_batch0, xyz_batch1 = [], []
   matching_inds_batch, trans_batch, len_batch = [], [], []
 
   batch_id = 0
@@ -36,16 +35,7 @@ def collate_pair_fn(list_data):
     N1 = coords1[batch_id].shape[0]
 
     xyz_batch0.append(torch.from_numpy(xyz0[batch_id]))
-    coords_batch0.append(
-        torch.cat((torch.from_numpy(
-            coords0[batch_id]).int(), torch.ones(N0, 1).int() * batch_id), 1))
-    feats_batch0.append(torch.from_numpy(feats0[batch_id]))
-
     xyz_batch1.append(torch.from_numpy(xyz1[batch_id]))
-    coords_batch1.append(
-        torch.cat((torch.from_numpy(
-            coords1[batch_id]).int(), torch.ones(N1, 1).int() * batch_id), 1))
-    feats_batch1.append(torch.from_numpy(feats1[batch_id]))
 
     trans_batch.append(torch.from_numpy(trans[batch_id]))
 
@@ -57,13 +47,12 @@ def collate_pair_fn(list_data):
     curr_start_inds[0, 0] += N0
     curr_start_inds[0, 1] += N1
 
+  coords_batch0, feats_batch0 = ME.utils.sparse_collate(coords0, feats0)
+  coords_batch1, feats_batch1 = ME.utils.sparse_collate(coords1, feats1)
+
   # Concatenate all lists
   xyz_batch0 = torch.cat(xyz_batch0, 0).float()
-  coords_batch0 = torch.cat(coords_batch0, 0).int()
-  feats_batch0 = torch.cat(feats_batch0, 0).float()
   xyz_batch1 = torch.cat(xyz_batch1, 0).float()
-  coords_batch1 = torch.cat(coords_batch1, 0).int()
-  feats_batch1 = torch.cat(feats_batch1, 0).float()
   trans_batch = torch.cat(trans_batch, 0).float()
   matching_inds_batch = torch.cat(matching_inds_batch, 0).int()
 
@@ -71,9 +60,9 @@ def collate_pair_fn(list_data):
       'pcd0': xyz_batch0,
       'pcd1': xyz_batch1,
       'sinput0_C': coords_batch0,
-      'sinput0_F': feats_batch0,
+      'sinput0_F': feats_batch0.float(),
       'sinput1_C': coords_batch1,
-      'sinput1_F': feats_batch1,
+      'sinput1_F': feats_batch1.float(),
       'correspondences': matching_inds_batch,
       'T_gt': trans_batch,
       'len_batch': len_batch

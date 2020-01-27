@@ -240,7 +240,7 @@ class ContrastiveLossTrainer(AlignmentTrainer):
             input_dict['sinput1_F'], coords=input_dict['sinput1_C']).to(self.device)
         F1 = self.model(sinput1).F
 
-        N0, N1 = input_dict['pcd0'].shape[0], input_dict['pcd1'].shape[0]
+        N0, N1 = len(sinput0), len(sinput1)
 
         pos_pairs = input_dict['correspondences']
         neg_pairs = self.generate_rand_negative_pairs(pos_pairs, max(N0, N1), N0, N1)
