@@ -244,14 +244,17 @@ if __name__ == '__main__':
 
     model = model.to(device)
 
-    extract_features_batch(model, config, args.source, args.target, config.voxel_size,
-                           device)
+    with torch.no_grad():
+      extract_features_batch(model, config, args.source, args.target, config.voxel_size,
+                             device)
 
   if args.do_exp_feature:
     assert (args.target is not None)
-    do_feature_evaluation(args.source, args.target, args.voxel_size,
-                          args.num_rand_keypoints)
+    with torch.no_grad():
+      do_feature_evaluation(args.source, args.target, args.voxel_size,
+                            args.num_rand_keypoints)
 
   if args.do_exp_registration:
     assert (args.target is not None)
-    do_registration(args.target, args.voxel_size)
+    with torch.no_grad():
+      do_registration(args.target, args.voxel_size)

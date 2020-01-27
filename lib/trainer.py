@@ -120,7 +120,9 @@ class AlignmentTrainer:
     """
     # Baseline random feature performance
     if self.test_valid:
-      val_dict = self._valid_epoch()
+      with torch.no_grad():
+        val_dict = self._valid_epoch()
+
       for k, v in val_dict.items():
         self.writer.add_scalar(f'val/{k}', v, 0)
 
@@ -132,7 +134,9 @@ class AlignmentTrainer:
       self.scheduler.step()
 
       if self.test_valid and epoch % self.val_epoch_freq == 0:
-        val_dict = self._valid_epoch()
+        with torch.no_grad():
+          val_dict = self._valid_epoch()
+
         for k, v in val_dict.items():
           self.writer.add_scalar(f'val/{k}', v, epoch)
         if self.best_val < val_dict[self.best_val_metric]:
