@@ -21,12 +21,12 @@ Our work addressed a number of limitations in the prior work. First, all prior a
 
 ### Fully Convolutional Metric Learning  and Hardest Contrastive, Hardest Triplet Loss
 
-Traditional metric learning assumes that the features are independent and identically distributed (i.i.d.) since a batch is constructed by random sampling. However, in fully-convolutional feature extraction, adjacent features are locally correlated. Thus, hard-negative mining could find features adjacent to anchors, and they are false negatives. Thus, filtering out the false negatives is crucial similar to how Universal Correspondence Network by Choy et al. used a distance threshold.
+Traditional metric learning assumes that the features are independent and identically distributed (i.i.d.) since a batch is constructed by random sampling. However, in fully-convolutional feature extraction, adjacent features are locally correlated and hard-negative mining could find features adjacent to anchors, which are false negatives. Thus, filtering out these false negatives is a crucial step similar to how Universal Correspondence Network by Choy et al. used a distance threshold to filter out the false negatives.
 
-Also, the number of features used in the fully-convolutional setting is orders of magnitude larger than in standard metric learning algorithms. For instance, FCGF generates ~40k features for a pair of scans (this increases proportionally with the batch size) while a minibatch in traditional metric learning has around 1k features. Thus, it is not feasible to use all pairwise distances within a batch as in standard metric learning.
+Also, the number of features used in the fully-convolutional setting is orders of magnitude larger than that in standard metric learning algorithms. For instance, FCGF generates ~40k features for a pair of scans (this increases proportionally with the batch size) while a minibatch in traditional metric learning has around 1k features. Thus, it is not feasible to use all pairwise distances within a batch in the standard metric learning.
 
-To speed up the fully-convolutional feature learning, we propose hardest contrastive loss and hardest triplet loss. Visually, these are simple variants that use the hardest negatives for both of points within a positive pair.
-One of the key advantages of the hardest-contrastive loss is that you do not need to save the temporary variables used to find the hardest negatives. This allows finding hardest negatives among a large number of feature. [Here](https://github.com/chrischoy/open-ucn/blob/master/lib/ucn_trainer.py#L435), we used almost 40k features to mine the hardest negative and free all intermediate variables once the indices of the hardest negatives are found.
+Instead, we propose the hardest-contrastive loss and the hardest-triplet loss. Visually, these are simple variants that use the hardest negatives for both features within a positive pair.
+One of the key advantages of the hardest-contrastive loss is that you do not need to save the temporary variables used to find the hardest negatives. This small change allows us to reconstruct the loss from the hardest negatives indices and throw away the intermediate results among a large number of feature. [Here](https://github.com/chrischoy/open-ucn/blob/master/lib/ucn_trainer.py#L435), we used almost 40k features to mine the hardest negative and destroy all intermediate variables once the indices of the hardest negatives are found for each positive feature.
 
 | Contrastive Loss   | Triplet Loss       | Hardest Contrastive | Hardest Triplet    |
 |:------------------:|:------------------:|:-------------------:|:------------------:|
@@ -139,17 +139,18 @@ FCGF will be presented at ICCV'19: Friday, November 1, 2019, 1030–1300 Poster 
 }
 ```
 
-## Acknowledgements
-
-We want to thank all the ICCV reviewers, especially R2, for suggestions and valuable pointers.
-
-
 ## Related Projects
 
-- [Minkowski Engine](https://github.com/StanfordVL/MinkowskiEngine)
-- [4D Spatio Temporal Semantic Segmentation](https://github.com/chrischoy/SpatioTemporalSegmentation)
+- A neural network library for high-dimensional sparse tensor: [Minkowski Engine](https://github.com/StanfordVL/MinkowskiEngine)
+- Semantic segmentation on a high-dimensional sparse tensor: [4D Spatio Temporal Semantic Segmentation](https://github.com/chrischoy/SpatioTemporalSegmentation)
+- The first fully convolutional metric learning for correspondences: [Universal Correspondence Network](https://github.com/chrischoy/open-ucn)
 
 
 ## Projects using FCGF
 
 - [Learning multiview 3D point cloud registration](https://arxiv.org/abs/2001.05119)
+
+
+## Acknowledgements
+
+We want to thank all the ICCV reviewers, especially R2, for suggestions and valuable pointers.
