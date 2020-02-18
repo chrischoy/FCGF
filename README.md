@@ -115,6 +115,16 @@ python -m scripts.benchmark_3dmatch.py \
     --do_generate --do_exp_feature --with_cuda
 ```
 
+
+## Training and testing on KITTI Odometry custom split
+
+For KITTI training, follow the instruction on [KITTI Odometry website](http://www.cvlibs.net/datasets/kitti/eval_odometry.php) to download the KITTI odometry training set.
+
+```
+export KITTI_PATH=/path/to/kitti/; ./scripts/train_fcgf_kitti.sh
+```
+
+
 ## Model Zoo
 
 | Model       | Normalized Feature  | Dataset | Voxel Size | Feature Dimension | Performance              | Link   |

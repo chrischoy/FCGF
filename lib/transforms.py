@@ -1,5 +1,7 @@
-import numpy as np
 import random
+import numpy as np
+
+import torch
 
 
 class Compose:
@@ -21,7 +23,10 @@ class Jitter:
 
   def __call__(self, coords, feats):
     if random.random() < 0.95:
-      feats += np.random.normal(self.mu, self.sigma, (feats.shape[0], feats.shape[1]))
+      if isinstance(feats, np.ndarray):
+        feats += np.random.normal(self.mu, self.sigma, (feats.shape[0], feats.shape[1]))
+      else:
+        feats += (torch.randn_like(feats) * self.sigma) + self.mu
     return coords, feats
 
 

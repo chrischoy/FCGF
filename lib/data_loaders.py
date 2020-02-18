@@ -10,6 +10,7 @@ import numpy as np
 import glob
 import os
 from scipy.linalg import expm, norm
+import pathlib
 
 from util.pointcloud import get_matching_indices, make_open3d_point_cloud
 import lib.transforms as t
@@ -30,14 +31,23 @@ def collate_pair_fn(list_data):
 
   batch_id = 0
   curr_start_inds = np.zeros((1, 2))
+
+  def to_tensor(x):
+    if isinstance(x, torch.Tensor):
+      return x
+    elif isinstance(x, np.ndarray):
+      return torch.from_numpy(x)
+    else:
+      raise ValueError(f'Can not convert to torch tensor, {x}')
+
   for batch_id, _ in enumerate(coords0):
     N0 = coords0[batch_id].shape[0]
     N1 = coords1[batch_id].shape[0]
 
-    xyz_batch0.append(torch.from_numpy(xyz0[batch_id]))
-    xyz_batch1.append(torch.from_numpy(xyz1[batch_id]))
+    xyz_batch0.append(to_tensor(xyz0[batch_id]))
+    xyz_batch1.append(to_tensor(xyz1[batch_id]))
 
-    trans_batch.append(torch.from_numpy(trans[batch_id]))
+    trans_batch.append(to_tensor(trans[batch_id]))
 
     matching_inds_batch.append(
         torch.from_numpy(np.array(matching_inds[batch_id]) + curr_start_inds))
@@ -246,7 +256,9 @@ class KITTIPairDataset(PairDataset):
       self.date = config.kitti_date
       self.root = root = os.path.join(config.kitti_root, self.date)
 
-    self.icp_path = config.icp_cache_path
+    self.icp_path = os.path.join(config.kitti_root, 'icp')
+    pathlib.Path(self.icp_path).mkdir(parents=True, exist_ok=True)
+
     PairDataset.__init__(self, phase, transform, random_rotation, random_scale,
                          manual_seed, config)
 
@@ -382,36 +394,23 @@ class KITTIPairDataset(PairDataset):
     xyz0 = xyzr0[:, :3]
     xyz1 = xyzr1[:, :3]
 
-    coords0 = (xyz0 - xyz0.min(0)) / 0.05
-    coords1 = (xyz1 - xyz1.min(0)) / 0.05
-
-    sel0 = ME.utils.sparse_quantize(coords0, return_index=True)
-    sel1 = ME.utils.sparse_quantize(coords1, return_index=True)
-
-    xyz0 = xyz0[sel0]
-    xyz1 = xyz1[sel1]
-
-    # r0 = xyzr0[:, -1].reshape(-1, 1)
-    # r1 = xyzr1[:, -1].reshape(-1, 1)
-
-    # pcd0 = make_open3d_point_cloud(xyz0_t, 0.7 * np.ones((len(xyz0), 3)))
-    # pcd1 = make_open3d_point_cloud(xyz1, 0.3 * np.ones((len(xyz1), 3)))
-
     key = '%d_%d_%d' % (drive, t0, t1)
     filename = self.icp_path + '/' + key + '.npy'
     if key not in kitti_icp_cache:
       if not os.path.exists(filename):
-        if self.IS_ODOMETRY:
-          M = (self.velo2cam @ positions[0].T @ np.linalg.inv(positions[1].T)
-               @ np.linalg.inv(self.velo2cam)).T
-        else:
-          M = self.get_position_transform(positions[0], positions[1], invert=True).T
-        xyz0_t = self.apply_transform(xyz0, M)
+        # work on the downsampled xyzs, 0.05m == 5cm
+        sel0 = ME.utils.sparse_quantize(xyz0 / 0.05, return_index=True)
+        sel1 = ME.utils.sparse_quantize(xyz1 / 0.05, return_index=True)
+
+        M = (self.velo2cam @ positions[0].T @ np.linalg.inv(positions[1].T)
+             @ np.linalg.inv(self.velo2cam)).T
+        xyz0_t = self.apply_transform(xyz0[sel0], M)
         pcd0 = make_open3d_point_cloud(xyz0_t)
-        pcd1 = make_open3d_point_cloud(xyz1)
-        reg = o3d.registration_icp(pcd0, pcd1, 0.2, np.eye(4),
-                                   o3d.TransformationEstimationPointToPoint(),
-                                   o3d.ICPConvergenceCriteria(max_iteration=200))
+        pcd1 = make_open3d_point_cloud(xyz1[sel1])
+        reg = o3d.registration.registration_icp(
+            pcd0, pcd1, 0.2, np.eye(4),
+            o3d.registration.TransformationEstimationPointToPoint(),
+            o3d.registration.ICPConvergenceCriteria(max_iteration=200))
         pcd0.transform(reg.transformation)
         # pcd0.transform(M2) or self.apply_transform(xyz0, M2)
         M2 = M @ reg.transformation
@@ -443,49 +442,52 @@ class KITTIPairDataset(PairDataset):
       xyz1 = scale * xyz1
 
     # Voxelization
-    coords0 = np.floor(xyz0 / self.voxel_size)
-    coords1 = np.floor(xyz1 / self.voxel_size)
-    sel0 = ME.utils.sparse_quantize(coords0, return_index=True)
-    sel1 = ME.utils.sparse_quantize(coords1, return_index=True)
-    coords0, coords1 = coords0[sel0], coords1[sel1]
-    # r0, r1 = r0[sel0], r1[sel1]
+    xyz0_th = torch.from_numpy(xyz0)
+    xyz1_th = torch.from_numpy(xyz1)
 
-    pcd0 = make_open3d_point_cloud(xyz0)
-    pcd1 = make_open3d_point_cloud(xyz1)
+    sel0 = ME.utils.sparse_quantize(xyz0_th / self.voxel_size, return_index=True)
+    sel1 = ME.utils.sparse_quantize(xyz1_th / self.voxel_size, return_index=True)
 
-    # Select features and points using the returned voxelized indices
-    pcd0.points = o3d.utility.Vector3dVector(np.array(pcd0.points)[sel0])
-    pcd1.points = o3d.utility.Vector3dVector(np.array(pcd1.points)[sel1])
+    # Make point clouds using voxelized points
+    pcd0 = make_open3d_point_cloud(xyz0[sel0])
+    pcd1 = make_open3d_point_cloud(xyz1[sel1])
 
     # Get matches
     matches = get_matching_indices(pcd0, pcd1, trans, matching_search_voxel_size)
     if len(matches) < 1000:
       raise ValueError(f"{drive}, {t0}, {t1}")
 
+    # Get features
+    npts0 = len(sel0)
+    npts1 = len(sel1)
+
     feats_train0, feats_train1 = [], []
 
-    feats_train0.append(np.ones((len(sel0), 1)))
-    feats_train1.append(np.ones((len(sel1), 1)))
+    unique_xyz0_th = xyz0_th[sel0]
+    unique_xyz1_th = xyz1_th[sel1]
 
-    feats0 = np.hstack(feats_train0)
-    feats1 = np.hstack(feats_train1)
+    feats_train0.append(torch.ones((npts0, 1)))
+    feats_train1.append(torch.ones((npts1, 1)))
 
-    # Get coords
-    xyz0 = np.array(pcd0.points)
-    xyz1 = np.array(pcd1.points)
+    feats0 = torch.cat(feats_train0, 1)
+    feats1 = torch.cat(feats_train1, 1)
+
+    coords0 = torch.floor(unique_xyz0_th / self.voxel_size)
+    coords1 = torch.floor(unique_xyz1_th / self.voxel_size)
 
     if self.transform:
       coords0, feats0 = self.transform(coords0, feats0)
       coords1, feats1 = self.transform(coords1, feats1)
 
-    return (xyz0, xyz1, coords0, coords1, feats0, feats1, matches, trans)
+    return (unique_xyz0_th.float(), unique_xyz1_th.float(), coords0.int(),
+            coords1.int(), feats0.float(), feats1.float(), matches, trans)
 
 
 class KITTINMPairDataset(KITTIPairDataset):
   r"""
   Generate KITTI pairs within N meter distance
   """
-  MAX_TIME_DIFF = 3
+  MIN_DIST = 10
 
   def __init__(self,
                phase,
@@ -495,21 +497,19 @@ class KITTINMPairDataset(KITTIPairDataset):
                manual_seed=False,
                config=None):
     if self.IS_ODOMETRY:
-      self.root = root = config.kitti_root + '/dataset'
+      self.root = root = os.path.join(config.kitti_root, 'dataset')
       random_rotation = self.TEST_RANDOM_ROTATION
     else:
       self.date = config.kitti_date
       self.root = root = os.path.join(config.kitti_root, self.date)
+
+    self.icp_path = os.path.join(config.kitti_root, 'icp')
+    pathlib.Path(self.icp_path).mkdir(parents=True, exist_ok=True)
+
     PairDataset.__init__(self, phase, transform, random_rotation, random_scale,
                          manual_seed, config)
-    self.icp_path = config.icp_cache_path
 
     logging.info(f"Loading the subset {phase} from {root}")
-    # Use the kitti root
-    if phase == 'train':
-      max_time_diff = self.MAX_TIME_DIFF
-    else:
-      max_time_diff = -1
 
     subset_names = open(self.DATA_FILES[phase]).read().split()
     if self.IS_ODOMETRY:
@@ -524,11 +524,11 @@ class KITTINMPairDataset(KITTIPairDataset):
         Ts = all_pos[:, :3, 3]
         pdist = (Ts.reshape(1, -1, 3) - Ts.reshape(-1, 1, 3))**2
         pdist = np.sqrt(pdist.sum(-1))
-        more_than_10 = pdist > 10
+        valid_pairs = pdist > self.MIN_DIST
         curr_time = inames[0]
         while curr_time in inames:
           # Find the min index
-          next_time = np.where(more_than_10[curr_time][curr_time:curr_time + 100])[0]
+          next_time = np.where(valid_pairs[curr_time][curr_time:curr_time + 100])[0]
           if len(next_time) == 0:
             curr_time += 1
           else:
@@ -554,7 +554,8 @@ class KITTINMPairDataset(KITTIPairDataset):
         pdist = np.sqrt(pdist.sum(-1))
 
         for start_time in inames:
-          pair_time = np.where(pdist[start_time][start_time:start_time + 100] > 10)[0]
+          pair_time = np.where(
+              pdist[start_time][start_time:start_time + 100] > self.MIN_DIST)[0]
           if len(pair_time) == 0:
             continue
           else:
@@ -562,11 +563,6 @@ class KITTINMPairDataset(KITTIPairDataset):
 
           if pair_time in inames:
             self.files.append((drive_id, start_time, pair_time))
-
-          if max_time_diff > 0:
-            for diff in range(1, max_time_diff):
-              if pair_time + diff in inames:
-                self.files.append((drive_id, start_time, pair_time + diff))
 
     if self.IS_ODOMETRY:
       # Remove problematic sequence
