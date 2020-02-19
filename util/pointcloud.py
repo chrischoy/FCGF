@@ -15,7 +15,7 @@ def make_open3d_point_cloud(xyz, color=None):
 
 
 def make_open3d_feature(data, dim, npts):
-  feature = o3d.geometry.Feature()
+  feature = o3d.registration.Feature()
   feature.resize(dim, npts)
   feature.data = data.cpu().numpy().astype('d').transpose()
   return feature

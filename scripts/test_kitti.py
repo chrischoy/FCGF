@@ -12,7 +12,6 @@ from model import load_model
 
 from lib.data_loaders import make_data_loader
 from util.pointcloud import make_open3d_point_cloud, make_open3d_feature
-from lib.loss import corr_dist
 from lib.timer import AverageMeter, Timer
 
 import MinkowskiEngine as ME
@@ -25,21 +24,25 @@ logging.basicConfig(
 
 def main(config):
   test_loader = make_data_loader(
-      config, config.test_phase, 1, num_threads=config.test_num_thread, shuffle=True)
+      config, config.test_phase, 1, num_threads=config.test_num_workers, shuffle=True)
 
   num_feats = 1
 
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
   Model = load_model(config.model)
-  model = Model(num_feats, config.model_n_out, config=config)
+  model = Model(
+      num_feats,
+      config.model_n_out,
+      bn_momentum=config.bn_momentum,
+      conv1_kernel_size=config.conv1_kernel_size,
+      normalize_feature=config.normalize_feature)
   checkpoint = torch.load(config.save_dir + '/checkpoint.pth')
   model.load_state_dict(checkpoint['state_dict'])
   model = model.to(device)
   model.eval()
 
-  success_meter, loss_meter, rte_meter, rre_meter = AverageMeter(), AverageMeter(
-  ), AverageMeter(), AverageMeter()
+  success_meter, rte_meter, rre_meter = AverageMeter(), AverageMeter(), AverageMeter()
   data_timer, feat_timer, reg_timer = Timer(), Timer(), Timer()
 
   test_iter = test_loader.__iter__()
@@ -49,17 +52,16 @@ def main(config):
   # downsample_voxel_size = 2 * config.voxel_size
 
   for i in range(len(test_iter)):
-
     data_timer.tic()
     try:
-      xyz0, xyz1, coord0, coord1, feats0, feats1, matching01, T_gth, len_01 = test_iter.next(
-      )
+      data_dict = test_iter.next()
     except ValueError:
       n_gpu_failures += 1
       logging.info(f"# Erroneous GPU Pair {n_gpu_failures}")
       continue
     data_timer.toc()
-
+    xyz0, xyz1 = data_dict['pcd0'], data_dict['pcd1']
+    T_gth = data_dict['T_gt']
     xyz0np, xyz1np = xyz0.numpy(), xyz1.numpy()
 
     pcd0 = make_open3d_point_cloud(xyz0np)
@@ -67,9 +69,11 @@ def main(config):
 
     with torch.no_grad():
       feat_timer.tic()
-      sinput0 = ME.SparseTensor(feats0, coords=coord0).to(device)
+      sinput0 = ME.SparseTensor(
+          data_dict['sinput0_F'], coords=data_dict['sinput0_C']).to(device)
       F0 = model(sinput0).F.detach()
-      sinput1 = ME.SparseTensor(feats1, coords=coord1).to(device)
+      sinput1 = ME.SparseTensor(
+          data_dict['sinput1_F'], coords=data_dict['sinput1_C']).to(device)
       F1 = model(sinput1).F.detach()
       feat_timer.toc()
 
@@ -78,16 +82,14 @@ def main(config):
 
     reg_timer.tic()
     distance_threshold = config.voxel_size * 1.0
-    ransac_result = o3d.registration_ransac_based_on_feature_matching(
+    ransac_result = o3d.registration.registration_ransac_based_on_feature_matching(
         pcd0, pcd1, feat0, feat1, distance_threshold,
-        o3d.TransformationEstimationPointToPoint(False), 4, [
-            o3d.CorrespondenceCheckerBasedOnEdgeLength(0.9),
-            o3d.CorrespondenceCheckerBasedOnDistance(distance_threshold)
-        ], o3d.RANSACConvergenceCriteria(4000000, 10000))
+        o3d.registration.TransformationEstimationPointToPoint(False), 4, [
+            o3d.registration.CorrespondenceCheckerBasedOnEdgeLength(0.9),
+            o3d.registration.CorrespondenceCheckerBasedOnDistance(distance_threshold)
+        ], o3d.registration.RANSACConvergenceCriteria(4000000, 10000))
     T_ransac = torch.from_numpy(ransac_result.transformation.astype(np.float32))
     reg_timer.toc()
-
-    loss_ransac = corr_dist(T_ransac, T_gth, xyz0, xyz1, weight=None, max_dist=1)
 
     # Translation error
     rte = np.linalg.norm(T_ransac[:3, 3] - T_gth[:3, 3])
@@ -107,24 +109,20 @@ def main(config):
       success_meter.update(0)
       logging.info(f"Failed with RTE: {rte}, RRE: {rre}")
 
-    loss_meter.update(loss_ransac)
-
     if i % 10 == 0:
       logging.info(
           f"{i} / {N}: Data time: {data_timer.avg}, Feat time: {feat_timer.avg}," +
-          f" Reg time: {reg_timer.avg}, Loss: {loss_meter.avg}, RTE: {rte_meter.avg}," +
-          f" RRE: {rre_meter.avg}, Success: {success_meter.sum} / {success_meter.count}" +
-          f" ({success_meter.avg * 100} %)"
-      )
+          f" Reg time: {reg_timer.avg}, RTE: {rte_meter.avg}," +
+          f" RRE: {rre_meter.avg}, Success: {success_meter.sum} / {success_meter.count}"
+          + f" ({success_meter.avg * 100} %)")
       data_timer.reset()
       feat_timer.reset()
       reg_timer.reset()
 
   logging.info(
-      f"Total loss: {loss_meter.avg}, RTE: {rte_meter.avg}, var: {rte_meter.var}," +
+      f"RTE: {rte_meter.avg}, var: {rte_meter.var}," +
       f" RRE: {rre_meter.avg}, var: {rre_meter.var}, Success: {success_meter.sum} " +
-      f"/ {success_meter.count} ({success_meter.avg * 100} %)"
-  )
+      f"/ {success_meter.count} ({success_meter.avg * 100} %)")
 
 
 if __name__ == '__main__':
@@ -141,7 +139,6 @@ if __name__ == '__main__':
   config.test_phase = args.test_phase
   config.kitti_root = args.kitti_root
   config.kitti_odometry_root = args.kitti_root + '/dataset'
-  config.icp_cache_path = args.kitti_root + '/icp'
   config.test_num_thread = args.test_num_thread
 
   main(config)
