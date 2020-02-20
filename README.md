@@ -127,13 +127,15 @@ export KITTI_PATH=/path/to/kitti/; ./scripts/train_fcgf_kitti.sh
 
 ## Model Zoo
 
-| Model       | Normalized Feature  | Dataset | Voxel Size | Feature Dimension | Performance              | Link   |
-|:-----------:|:-------------------:|:-------:|:----------:|:-----------------:|:------------------------:|:------:|
-| ResUNetBN2C | True                | 3DMatch | 2.5cm      | 32                | FMR: 0.9578 +- 0.0272    | [download](https://node1.chrischoy.org/data/publications/fcgf/2019-08-19_06-17-41.pth) |
-| ResUNetBN2C | True                | 3DMatch | 2.5cm      | 16                | FMR: 0.9442 +- 0.0345    | [download](https://node1.chrischoy.org/data/publications/fcgf/2019-09-18_14-15-59.pth) |
-| ResUNetBN2C | True                | 3DMatch | 5cm        | 32                | FMR: 0.9372 +- 0.0332    | [download](https://node1.chrischoy.org/data/publications/fcgf/2019-08-16_19-21-47.pth) |
-| ResUNetBN2C | False               | KITTI   | 20cm       | 32                | RTE: 0.0534, RRE: 0.1704 | [download](https://node1.chrischoy.org/data/publications/fcgf/2019-07-31_19-30-19.pth) |
-| ResUNetBN2C | False               | KITTI   | 30cm       | 32                | RTE: 0.0607, RRE: 0.2280 | [download](https://node1.chrischoy.org/data/publications/fcgf/2019-07-31_19-37-00.pth) |
+| Model       | Normalized Feature  | Dataset | Voxel Size    | Feature Dimension | Performance                | Link   |
+|:-----------:|:-------------------:|:-------:|:-------------:|:-----------------:|:--------------------------:|:------:|
+| ResUNetBN2C | True                | 3DMatch | 2.5cm (0.025) | 32                | FMR: 0.9578 +- 0.0272      | [download](https://node1.chrischoy.org/data/publications/fcgf/2019-08-19_06-17-41.pth) |
+| ResUNetBN2C | True                | 3DMatch | 2.5cm (0.025) | 16                | FMR: 0.9442 +- 0.0345      | [download](https://node1.chrischoy.org/data/publications/fcgf/2019-09-18_14-15-59.pth) |
+| ResUNetBN2C | True                | 3DMatch | 5cm   (0.05)  | 32                | FMR: 0.9372 +- 0.0332      | [download](https://node1.chrischoy.org/data/publications/fcgf/2019-08-16_19-21-47.pth) |
+| ResUNetBN2C | False               | KITTI   | 20cm  (0.2)   | 32                | RTE: 0.0534m, RRE: 0.1704° | [download](https://node1.chrischoy.org/data/publications/fcgf/2019-07-31_19-30-19.pth) |
+| ResUNetBN2C | False               | KITTI   | 30cm  (0.3)   | 32                | RTE: 0.0607m, RRE: 0.2280° | [download](https://node1.chrischoy.org/data/publications/fcgf/2019-07-31_19-37-00.pth) |
+| ResUNetBN2C | True                | KITTI   | 30cm  (0.3)   | 16                | RTE: 0.0670m, RRE: 0.2295° | [download](https://node1.chrischoy.org/data/publications/fcgf/KITTI-v0.3-ResUNetBN2C-conv1-5-nout16.pth) |
+| ResUNetBN2C | True                | KITTI   | 30cm  (0.3)   | 32                | RTE: 0.0639m, RRE: 0.2253° | [download](https://node1.chrischoy.org/data/publications/fcgf/KITTI-v0.3-ResUNetBN2C-conv1-5-nout32.pth) |
 
 
 ## Citing FCGF
@@ -151,7 +153,7 @@ FCGF will be presented at ICCV'19: Friday, November 1, 2019, 1030–1300 Poster 
 
 ## Related Projects
 
-- A neural network library for high-dimensional sparse tensor: [Minkowski Engine](https://github.com/StanfordVL/MinkowskiEngine)
+- A neural network library for high-dimensional sparse tensors: [Minkowski Engine](https://github.com/StanfordVL/MinkowskiEngine)
 - Semantic segmentation on a high-dimensional sparse tensor: [4D Spatio Temporal Semantic Segmentation](https://github.com/chrischoy/SpatioTemporalSegmentation)
 - The first fully convolutional metric learning for correspondences: [Universal Correspondence Network](https://github.com/chrischoy/open-ucn)
 
