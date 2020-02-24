@@ -1,3 +1,4 @@
+import os
 import numpy as np
 
 
@@ -14,6 +15,7 @@ class CameraPose:
 
 def read_trajectory(filename, dim=4):
   traj = []
+  assert os.path.exists(filename)
   with open(filename, 'r') as f:
     metastr = f.readline()
     while metastr:

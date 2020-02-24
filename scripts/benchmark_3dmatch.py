@@ -33,7 +33,10 @@ o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel.Error)
 def extract_features_batch(model, config, source_path, target_path, voxel_size, device):
 
   folders = get_folder_list(source_path)
-  f = open(os.path.join(target_path, "list.txt"), "w")
+  assert len(folders) > 0, f"Could not fine any folders under {source_path}"
+  logging.info(folders)
+  list_file = os.path.join(target_path, "list.txt")
+  f = open(list_file, "w")
   timer, tmeter = Timer(), AverageMeter()
   num_feat = 0
   model.eval()
@@ -159,13 +162,17 @@ def do_feature_evaluation(source_path, feature_path, voxel_size, num_rand_keypoi
     sets = f.readlines()
     sets = [x.strip().split() for x in sets]
 
+  assert len(sets) > 0, "Empty set"
+
   tau_1 = 0.1  # 10cm
   tau_2 = 0.05  # 5% inlier
   logging.info("%f %f" % (tau_1, tau_2))
   recall = []
   for s in sets:
     set_name = s[0]
-    traj = read_trajectory(os.path.join(source_path, set_name + "_gt.log"))
+    os.path.join(source_path, set_name + "_gt.log")
+    traj = read_trajectory()
+    assert len(traj) > 0, "Empty trajectory file"
     results = []
     for i in range(len(traj)):
       results.append(
