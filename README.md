@@ -112,7 +112,7 @@ python -m scripts.benchmark_3dmatch.py \
     --target ./features_tmp/ \
     --voxel_size 0.025 \
     --model ~/outputs/checkpoint.pth \
-    --do_generate --do_exp_feature --with_cuda
+    --extract_features --evaluate_feature_match_recall --with_cuda
 ```
 
 

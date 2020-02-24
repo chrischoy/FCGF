@@ -33,7 +33,7 @@ o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel.Error)
 def extract_features_batch(model, config, source_path, target_path, voxel_size, device):
 
   folders = get_folder_list(source_path)
-  assert len(folders) > 0, f"Could not fine any folders under {source_path}"
+  assert len(folders) > 0, f"Could not find 3DMatch folders under {source_path}"
   logging.info(folders)
   list_file = os.path.join(target_path, "list.txt")
   f = open(list_file, "w")
@@ -81,7 +81,7 @@ def extract_features_batch(model, config, source_path, target_path, voxel_size, 
   f.close()
 
 
-def do_registration(feature_path, voxel_size):
+def registration(feature_path, voxel_size):
   """
   Gather .log files produced in --target folder and run this Matlab script
   https://github.com/andyzeng/3dmatch-toolbox#geometric-registration-benchmark
@@ -157,12 +157,14 @@ def do_single_pair_evaluation(feature_path,
     return False
 
 
-def do_feature_evaluation(source_path, feature_path, voxel_size, num_rand_keypoints=-1):
+def feature_evaluation(source_path, feature_path, voxel_size, num_rand_keypoints=-1):
   with open(os.path.join(feature_path, "list.txt")) as f:
     sets = f.readlines()
     sets = [x.strip().split() for x in sets]
 
-  assert len(sets) > 0, "Empty set"
+  assert len(
+      sets
+  ) > 0, "Empty list file. Makesure to run the feature extraction first with --do_extract_feature."
 
   tau_1 = 0.1  # 10cm
   tau_2 = 0.05  # 5% inlier
@@ -211,10 +213,10 @@ if __name__ == '__main__':
       default=0.05,
       type=float,
       help='voxel size to preprocess point cloud')
-  parser.add_argument('--do_generate', action='store_true')
-  parser.add_argument('--do_exp_feature', action='store_true')
+  parser.add_argument('--extract_features', action='store_true')
+  parser.add_argument('--evaluate_feature_match_recall', action='store_true')
   parser.add_argument(
-      '--do_exp_registration',
+      '--evaluate_registration',
       action='store_true',
       help='The target directory must contain extracted features')
   parser.add_argument('--with_cuda', action='store_true')
@@ -228,7 +230,7 @@ if __name__ == '__main__':
 
   device = torch.device('cuda' if args.with_cuda else 'cpu')
 
-  if args.do_generate:
+  if args.extract_features:
     assert args.model is not None
     assert args.source is not None
     assert args.target is not None
@@ -255,13 +257,13 @@ if __name__ == '__main__':
       extract_features_batch(model, config, args.source, args.target, config.voxel_size,
                              device)
 
-  if args.do_exp_feature:
+  if args.evaluate_feature_match_recall:
     assert (args.target is not None)
     with torch.no_grad():
-      do_feature_evaluation(args.source, args.target, args.voxel_size,
-                            args.num_rand_keypoints)
+      feature_evaluation(args.source, args.target, args.voxel_size,
+                         args.num_rand_keypoints)
 
-  if args.do_exp_registration:
+  if args.evaluate_registration:
     assert (args.target is not None)
     with torch.no_grad():
-      do_registration(args.target, args.voxel_size)
+      registration(args.target, args.voxel_size)
