@@ -172,8 +172,7 @@ def feature_evaluation(source_path, feature_path, voxel_size, num_rand_keypoints
   recall = []
   for s in sets:
     set_name = s[0]
-    os.path.join(source_path, set_name + "_gt.log")
-    traj = read_trajectory()
+    traj = read_trajectory(os.path.join(source_path, set_name + "_gt.log"))
     assert len(traj) > 0, "Empty trajectory file"
     results = []
     for i in range(len(traj)):
