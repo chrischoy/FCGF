@@ -7,7 +7,7 @@ Extracting geometric features from 3D scans or point clouds is the first step in
 
 ## 3D Feature Accuracy vs. Speed
 
-![Accuracy vs. Speed](images/fps_acc.png)
+![Accuracy vs. Speed](assets/fps_acc.png)
 *Feature-match recall and speed in log scale on the 3DMatch benchmark. Our approach is the most accurate and the fastest. The gray region shows the Pareto frontier of the prior methods.*
 
 
@@ -30,7 +30,7 @@ One of the key advantages of the hardest-contrastive loss is that you do not nee
 
 | Contrastive Loss   | Triplet Loss       | Hardest Contrastive | Hardest Triplet    |
 |:------------------:|:------------------:|:-------------------:|:------------------:|
-| ![1](images/1.png) | ![2](images/2.png) | ![3](images/3.png)  | ![4](images/4.png) |
+| ![1](assets/1.png) | ![2](assets/2.png) | ![3](assets/3.png)  | ![4](assets/4.png) |
 
 *Sampling and negative-mining strategy for each method. Blue: positives, Red: Negatives. Traditional contrastive and triplet losses use random sampling. Our hardest-contrastive and hardest-triplet losses use the hardest negatives.*
 
@@ -43,11 +43,11 @@ We color-coded FCGF features for pairs of 3D scans that are 10m apart for KITTI 
 
 | KITTI LIDAR Scan 1   | KITTI LIDAR Scan 2   |
 |:--------------------:|:--------------------:|
-| ![0](images/3_1.png) | ![1](images/3_2.png) |
+| ![0](assets/3_1.png) | ![1](assets/3_2.png) |
 
 | Indoor Scan 1              | Indoor Scan 2              |
 |:--------------------------:|:--------------------------:|
-| ![0](images/kitchen_0.png) | ![1](images/kitchen_1.png) |
+| ![0](assets/kitchen_0.png) | ![1](assets/kitchen_1.png) |
 
 
 ## Requirements
@@ -93,7 +93,7 @@ python demo.py
 The demo script will first extract FCGF features from a mesh file generated from a kitchen scene. Next, it will color code the features independent of their spatial location.
 After the color mapping using TSNE, the demo script will visualize the color coded features by coloring the input point cloud.
 
-![demo](./images/demo.png)
+![demo](./assets/demo.png)
 
 *You may have to rotate the scene to get the above visualization.*
 
@@ -136,6 +136,12 @@ export KITTI_PATH=/path/to/kitti/; ./scripts/train_fcgf_kitti.sh
 | ResUNetBN2C | False               | KITTI   | 30cm  (0.3)   | 32                | RTE: 0.0607m, RRE: 0.2280° | [download](https://node1.chrischoy.org/data/publications/fcgf/2019-07-31_19-37-00.pth) |
 | ResUNetBN2C | True                | KITTI   | 30cm  (0.3)   | 16                | RTE: 0.0670m, RRE: 0.2295° | [download](https://node1.chrischoy.org/data/publications/fcgf/KITTI-v0.3-ResUNetBN2C-conv1-5-nout16.pth) |
 | ResUNetBN2C | True                | KITTI   | 30cm  (0.3)   | 32                | RTE: 0.0639m, RRE: 0.2253° | [download](https://node1.chrischoy.org/data/publications/fcgf/KITTI-v0.3-ResUNetBN2C-conv1-5-nout32.pth) |
+
+
+## Raw Data for FCGF Figure 4
+
+- [Distance threshold data](https://raw.githubusercontent.com/chrischoy/FCGF/master/assets/fig4_dist_thresh.txt)
+- [Inlier threshold data](https://raw.githubusercontent.com/chrischoy/FCGF/master/assets/fig4_inlier_thresh.txt)
 
 
 ## Citing FCGF
