@@ -133,6 +133,57 @@ class PairDataset(torch.utils.data.Dataset):
     return len(self.files)
 
 
+class ThreeDMatchTestDataset(PairDataset):
+  DATA_FILES = {
+      'test': './config/test_3dmatch.txt'
+  }
+
+  def __init__(self,
+               phase,
+               transform=None,
+               random_rotation=True,
+               random_scale=True,
+               manual_seed=False,
+               scene_id=None,
+               config=None,
+               return_ply_names=False):
+
+    PairDataset.__init__(self, phase, transform, random_rotation, random_scale,
+                         manual_seed, config)
+    assert phase == 'test', "Supports only the test set."
+
+    self.root = config.threed_match_dir
+
+    subset_names = open(self.DATA_FILES[phase]).read().split()
+    if scene_id is not None:
+      subset_names = [subset_names[scene_id]]
+    for sname in subset_names:
+      traj_file = os.path.join(self.root, sname + '-evaluation/gt.log')
+      assert os.path.exists(traj_file)
+      traj = read_trajectory(traj_file)
+      for ctraj in traj:
+        i = ctraj.metadata[0]
+        j = ctraj.metadata[1]
+        T_gt = ctraj.pose
+        self.files.append((sname, i, j, T_gt))
+
+    self.return_ply_names = return_ply_names
+
+  def __getitem__(self, pair_index):
+    sname, i, j, T_gt = self.files[pair_index]
+    ply_name0 = os.path.join(self.root, sname, f'cloud_bin_{i}.ply')
+    ply_name1 = os.path.join(self.root, sname, f'cloud_bin_{j}.ply')
+
+    if self.return_ply_names:
+      return sname, ply_name0, ply_name1, T_gt
+
+    pcd0 = o3d.io.read_point_cloud(ply_name0)
+    pcd1 = o3d.io.read_point_cloud(ply_name1)
+    pcd0 = np.asarray(pcd0.points)
+    pcd1 = np.asarray(pcd1.points)
+    return sname, pcd0, pcd1, T_gt
+
+
 class IndoorPairDataset(PairDataset):
   OVERLAP_RATIO = None
   AUGMENT = None

@@ -7,7 +7,10 @@ Extracting geometric features from 3D scans or point clouds is the first step in
 
 ## 3D Feature Accuracy vs. Speed
 
-![Accuracy vs. Speed](assets/fps_acc.png)
+|   Comparison Table           | Speed vs. Accuracy |
+|:----------------------------:|:------------------:|
+| ![Table](assets/table.png)   | ![Accuracy vs. Speed](assets/fps_acc.png) |
+
 *Feature-match recall and speed in log scale on the 3DMatch benchmark. Our approach is the most accurate and the fastest. The gray region shows the Pareto frontier of the prior methods.*
 
 
@@ -87,7 +90,7 @@ For KITTI training, follow the instruction on [KITTI Odometry website](http://ww
 After installation, you can run the demo script by
 
 ```
-python demo.py
+python visualization_demo.py
 ```
 
 The demo script will first extract FCGF features from a mesh file generated from a kitchen scene. Next, it will color code the features independent of their spatial location.
@@ -123,6 +126,9 @@ For KITTI training, follow the instruction on [KITTI Odometry website](http://ww
 ```
 export KITTI_PATH=/path/to/kitti/; ./scripts/train_fcgf_kitti.sh
 ```
+
+## Registration Test on 3DMatch
+
 
 
 ## Model Zoo
