@@ -107,7 +107,13 @@ After the color mapping using TSNE, the demo script will visualize the color cod
 python train.py --threed_match_dir /path/to/threedmatch/
 ```
 
-For benchmarking the trained weights on 3DMatch, download the 3DMatch Geometric Registration Benchmark dataset from [here](http://3dmatch.cs.princeton.edu/) and follow:
+For benchmarking the trained weights on 3DMatch, download the 3DMatch Geometric Registration Benchmark dataset from [here](http://3dmatch.cs.princeton.edu/) or run
+
+```
+bash ./scripts/download_3dmatch_test.sh /path/to/threedmatch_test/
+```
+
+and follow:
 
 ```
 python -m scripts.benchmark_3dmatch.py \
