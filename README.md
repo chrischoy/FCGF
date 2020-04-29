@@ -171,14 +171,16 @@ FCGF will be presented at ICCV'19: Friday, November 1, 2019, 1030–1300 Poster 
 
 ## Related Projects
 
-- A neural network library for high-dimensional sparse tensors: [Minkowski Engine](https://github.com/StanfordVL/MinkowskiEngine)
-- Semantic segmentation on a high-dimensional sparse tensor: [4D Spatio Temporal Semantic Segmentation](https://github.com/chrischoy/SpatioTemporalSegmentation)
-- The first fully convolutional metric learning for correspondences: [Universal Correspondence Network](https://github.com/chrischoy/open-ucn)
+- A neural network library for high-dimensional sparse tensors: [Minkowski Engine, CVPR'19](https://github.com/StanfordVL/MinkowskiEngine)
+- Semantic segmentation on a high-dimensional sparse tensor: [4D Spatio Temporal ConvNets, CVPR'19](https://github.com/chrischoy/SpatioTemporalSegmentation)
+- The first fully convolutional metric learning for correspondences: [Universal Correspondence Network, NIPS'16](https://github.com/chrischoy/open-ucn)
+- 3D Registration Network with 6-dimensional ConvNets: [Deep Global Registration, CVPR'20](https://github.com/chrischoy/DeepGlobalRegistration)
 
 
 ## Projects using FCGF
 
-- [Learning multiview 3D point cloud registration](https://arxiv.org/abs/2001.05119)
+- Gojcic et al., [Learning multiview 3D point cloud registration, CVPR'20](https://arxiv.org/abs/2001.05119)
+- Choy et al., [Deep Global Registration, CVPR'20 Oral](https://arxiv.org/abs/2004.11540)
 
 
 ## Acknowledgements
