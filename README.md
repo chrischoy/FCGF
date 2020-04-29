@@ -54,8 +54,8 @@ We color-coded FCGF features for pairs of 3D scans that are 10m apart for KITTI 
 
 #### FCGF Correspondence Visualizations
 
-Please follow the link [Youtube Video](https://www.youtube.com/watch?v=d0p0eTaB50k) or click the image to the YouTube video of FCGF visualizations.
-[![](https://chrischoy.github.io/images/publication/fcgf/000_tf_arrows.png)](https://www.youtube.com/watch?v=d0p0eTaB50k)
+Please follow the link [Youtube Video](https://www.youtube.com/watch?v=d0p0eTaB50k) or click the image to view the YouTube video of FCGF visualizations.
+[![](assets/text_scene000.gif)](https://www.youtube.com/watch?v=d0p0eTaB50k)
 
 ## Requirements
 
