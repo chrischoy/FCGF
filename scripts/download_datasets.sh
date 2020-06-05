@@ -9,7 +9,7 @@ function download() {
     echo "Download Path: ${TMP_PATH}"
     echo "#################################"
     urls=(
-        'https://node1.chrischoy.org/data/datasets/threedmatch.tgz'
+        'http://node2.chrischoy.org/data/datasets/registration/threedmatch.tgz'
     )
 
     if [ ! -d "$TMP_PATH" ]; then
