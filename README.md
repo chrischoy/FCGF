@@ -4,6 +4,9 @@ Extracting geometric features from 3D scans or point clouds is the first step in
 
 [ICCV'19 Paper](https://node1.chrischoy.org/data/publications/fcgf/fcgf.pdf)
 
+## News
+
+2020-06-15 [Source code](https://github.com/chrischoy/DeepGlobalRegistration) for **Deep Global Registration, CVPR'20 Oral** has been released. Please refer to the repository and the paper for using FCGF for registration.
 
 ## 3D Feature Accuracy vs. Speed
 
