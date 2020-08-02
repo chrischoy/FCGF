@@ -70,10 +70,10 @@ def main(config):
     with torch.no_grad():
       feat_timer.tic()
       sinput0 = ME.SparseTensor(
-          data_dict['sinput0_F'], coords=data_dict['sinput0_C']).to(device)
+          data_dict['sinput0_F'].to(device), coordinates=data_dict['sinput0_C'].to(device))
       F0 = model(sinput0).F.detach()
       sinput1 = ME.SparseTensor(
-          data_dict['sinput1_F'], coords=data_dict['sinput1_C']).to(device)
+          data_dict['sinput1_F'].to(device), coordinates=data_dict['sinput1_C'].to(device))
       F1 = model(sinput1).F.detach()
       feat_timer.toc()
 
