@@ -125,10 +125,10 @@ def pose_estimation(model,
                     feats0,
                     feats1,
                     return_corr=False):
-  sinput0 = ME.SparseTensor(feats0, coords=coord0).to(device)
+  sinput0 = ME.SparseTensor(feats0.to(device), coordinates=coord0.to(device))
   F0 = model(sinput0).F
 
-  sinput1 = ME.SparseTensor(feats1, coords=coord1).to(device)
+  sinput1 = ME.SparseTensor(feats1.to(device), coordinates=coord1.to(device))
   F1 = model(sinput1).F
 
   corr = F0.mm(F1.t())
