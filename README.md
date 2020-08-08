@@ -6,7 +6,8 @@ Extracting geometric features from 3D scans or point clouds is the first step in
 
 ## News
 
-2020-06-15 [Source code](https://github.com/chrischoy/DeepGlobalRegistration) for **Deep Global Registration, CVPR'20 Oral** has been released. Please refer to the repository and the paper for using FCGF for registration.
+- 2020-08-07 [MinkowskiEngine](https://github.com/NVIDIA/MinkowskiEngine) v0.5 improves the FCGF inferences speed by x2.3 (233% speed-up, feed forward time for ResUNetBN2C on the 3DMatch kitchen point cloud ID-20: 37ms (ME v0.4.3) down to 15.8ms (ME v0.5.0). Measured on TitanXP, Ryzen-3700X).
+- 2020-06-15 [Source code](https://github.com/chrischoy/DeepGlobalRegistration) for **Deep Global Registration, CVPR'20 Oral** has been released. Please refer to the repository and the paper for using FCGF for registration.
 
 ## 3D Feature Accuracy vs. Speed
 
