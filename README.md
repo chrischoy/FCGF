@@ -6,7 +6,9 @@ Extracting geometric features from 3D scans or point clouds is the first step in
 
 ## News
 
-2020-06-15 [Source code](https://github.com/chrischoy/DeepGlobalRegistration) for **Deep Global Registration, CVPR'20 Oral** has been released. Please refer to the repository and the paper for using FCGF for registration.
+- 2020-08-18 Merged the v0.5 to the master with v0.5 installation. You can now use the full GPU support for sparse tensor hi-COO representation for faster training and inference.
+- 2020-08-07 [MinkowskiEngine](https://github.com/NVIDIA/MinkowskiEngine) v0.5 improves the **FCGF inference speed by x2.8** (280% speed-up, feed forward time for ResUNetBN2C on the 3DMatch kitchen point cloud ID-20: 37ms (ME v0.4.3) down to 13.2ms (ME v0.5.0). Measured on TitanXP, Ryzen-3700X).
+- 2020-06-15 [Source code](https://github.com/chrischoy/DeepGlobalRegistration) for **Deep Global Registration, CVPR'20 Oral** has been released. Please refer to the repository and the paper for using FCGF for registration.
 
 ## 3D Feature Accuracy vs. Speed
 
@@ -27,7 +29,7 @@ Our work addressed a number of limitations in the prior work. First, all prior a
 
 ### Fully Convolutional Metric Learning  and Hardest Contrastive, Hardest Triplet Loss
 
-Traditional metric learning assumes that the features are independent and identically distributed (i.i.d.) since a batch is constructed by random sampling. However, in fully-convolutional feature extraction, adjacent features are locally correlated and hard-negative mining could find features adjacent to anchors, which are false negatives. Thus, filtering out these false negatives is a crucial step similar to how Universal Correspondence Network by Choy et al. used a distance threshold to filter out the false negatives.
+Traditional metric learning assumes that the features are independent and identically distributed (i.i.d.) since a batch is constructed by random sampling. However, in fully-convolutional feature extraction first proposed in Universal Correspondence Network, Choy 2016, adjacent features are locally correlated and hard-negative mining could find features adjacent to anchors, which are false negatives. Thus, filtering out these false negatives is a crucial step similar to how Universal Correspondence Network by Choy et al. used a distance threshold to filter out the false negatives.
 
 Also, the number of features used in the fully-convolutional setting is orders of magnitude larger than that in standard metric learning algorithms. For instance, FCGF generates ~40k features for a pair of scans (this increases proportionally with the batch size) while a minibatch in traditional metric learning has around 1k features. Thus, it is not feasible to use all pairwise distances within a batch in the standard metric learning.
 
@@ -63,16 +65,23 @@ Please follow the link [Youtube Video](https://www.youtube.com/watch?v=d0p0eTaB5
 ## Requirements
 
 - Ubuntu 14.04 or higher
-- CUDA 10.0 or higher
+- CUDA 10.2 or higher
 - Python v3.7 or higher
-- Pytorch v1.2 or higher
-- [MinkowskiEngine](https://github.com/stanfordvl/MinkowskiEngine) v0.2.7 or higher
+- Pytorch v1.5 or higher
+- [MinkowskiEngine](https://github.com/stanfordvl/MinkowskiEngine) v0.5 or higher
 
 
 ## Installation & Dataset Download
 
 
-We recommend conda for installation. First, follow the [MinkowskiEngine installation instruction](https://github.com/stanfordvl/MinkowskiEngine) to setup the environment and the Minkowski Engine.
+We recommend conda for installation. First, create a conda environment with pytorch 1.5 or higher with
+
+```
+conda create -n py3-fcgf python=3.7
+conda activate py3-fcgf
+conda install pytorch -c pytorch
+pip install git+https://github.com/NVIDIA/MinkowskiEngine.git@v0.5
+```
 
 Next, download FCGF git repository and install the requirement from the FCGF root directory..
 
