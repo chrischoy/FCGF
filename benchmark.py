@@ -29,10 +29,15 @@ def benchmark(config):
 
   with torch.no_grad():
     t = MinTimer()
-    for i in range(10):
+    for i in range(100):
       # initialization time includes copy to GPU
       t.tic()
-      sinput = ME.SparseTensor(feats, coords, device=device)
+      sinput = ME.SparseTensor(
+          feats,
+          coords,
+          minkowski_algorithm=ME.MinkowskiAlgorithm.SPEED_OPTIMIZED,
+          # minkowski_algorithm=ME.MinkowskiAlgorithm.MEMORY_EFFICIENT,
+          device=device)
       model(sinput)
       t.toc()
     print(t.min)
