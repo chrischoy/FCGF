@@ -27,14 +27,17 @@ def mesh_sphere(pcd, voxel_size, sphere_size=0.6):
   return spheres
 
 
-def get_colored_point_cloud_feature(pcd, feature, voxel_size):
+def get_colored_point_cloud_feature(pcd, feature, voxel_size, custom_points):
   tsne_results = embed_tsne(feature)
 
   color = get_color_map(tsne_results)
   pcd.colors = o3d.utility.Vector3dVector(color)
-  spheres = mesh_sphere(pcd, voxel_size)
-
-  return spheres
+  if custom_points:
+    # Points are represented by a primitive sphere based on the voxel size.
+    return mesh_sphere(pcd, voxel_size)
+  else:
+    # Here the default point primitive in Open3D is used.
+    return pcd
 
 
 def embed_tsne(data):
