@@ -43,9 +43,11 @@ def demo(config):
   vis_pcd = o3d.geometry.PointCloud()
   vis_pcd.points = o3d.utility.Vector3dVector(xyz_down)
 
+  
   vis_pcd = get_colored_point_cloud_feature(vis_pcd,
                                             feature.detach().cpu().numpy(),
-                                            config.voxel_size)
+                                            config.voxel_size,
+                                            config.custom_points)
   o3d.visualization.draw_geometries([vis_pcd])
 
 
@@ -68,6 +70,12 @@ if __name__ == '__main__':
       default=0.025,
       type=float,
       help='voxel size to preprocess point cloud')
+  parser.add_argument(
+      '--custom_points',
+      default=False, 
+      type=bool,
+      help='if the points should be visualized with a custom sphere mesh'
+  )
 
   config = parser.parse_args()
   demo(config)
