@@ -82,7 +82,7 @@ We recommend conda for installation. First, create a conda environment with pyto
 conda create -n py3-fcgf python=3.7
 conda activate py3-fcgf
 conda install pytorch -c pytorch
-pip install git+https://github.com/NVIDIA/MinkowskiEngine.git@v0.5
+pip install git+https://github.com/NVIDIA/MinkowskiEngine.git
 ```
 
 Next, download FCGF git repository and install the requirement from the FCGF root directory..
@@ -108,7 +108,7 @@ For KITTI training, follow the instruction on [KITTI Odometry website](http://ww
 After installation, you can run the demo script by
 
 ```
-python visualization_demo.py
+python demo.py
 ```
 
 The demo script will first extract FCGF features from a mesh file generated from a kitchen scene. Next, it will color code the features independent of their spatial location.

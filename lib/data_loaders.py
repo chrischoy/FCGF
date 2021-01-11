@@ -241,8 +241,8 @@ class IndoorPairDataset(PairDataset):
       trans = np.identity(4)
 
     # Voxelization
-    sel0 = ME.utils.sparse_quantize(xyz0 / self.voxel_size, return_index=True)
-    sel1 = ME.utils.sparse_quantize(xyz1 / self.voxel_size, return_index=True)
+    _, sel0 = ME.utils.sparse_quantize(xyz0 / self.voxel_size, return_index=True)
+    _, sel1 = ME.utils.sparse_quantize(xyz1 / self.voxel_size, return_index=True)
 
     # Make point clouds using voxelized points
     pcd0 = make_open3d_point_cloud(xyz0)
@@ -450,8 +450,8 @@ class KITTIPairDataset(PairDataset):
     if key not in kitti_icp_cache:
       if not os.path.exists(filename):
         # work on the downsampled xyzs, 0.05m == 5cm
-        sel0 = ME.utils.sparse_quantize(xyz0 / 0.05, return_index=True)
-        sel1 = ME.utils.sparse_quantize(xyz1 / 0.05, return_index=True)
+        _, sel0 = ME.utils.sparse_quantize(xyz0 / 0.05, return_index=True)
+        _, sel1 = ME.utils.sparse_quantize(xyz1 / 0.05, return_index=True)
 
         M = (self.velo2cam @ positions[0].T @ np.linalg.inv(positions[1].T)
              @ np.linalg.inv(self.velo2cam)).T
@@ -496,8 +496,8 @@ class KITTIPairDataset(PairDataset):
     xyz0_th = torch.from_numpy(xyz0)
     xyz1_th = torch.from_numpy(xyz1)
 
-    sel0 = ME.utils.sparse_quantize(xyz0_th / self.voxel_size, return_index=True)
-    sel1 = ME.utils.sparse_quantize(xyz1_th / self.voxel_size, return_index=True)
+    _, sel0 = ME.utils.sparse_quantize(xyz0_th / self.voxel_size, return_index=True)
+    _, sel1 = ME.utils.sparse_quantize(xyz1_th / self.voxel_size, return_index=True)
 
     # Make point clouds using voxelized points
     pcd0 = make_open3d_point_cloud(xyz0[sel0])
