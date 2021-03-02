@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 export DATA_DIR=$1
 export BASE_PATH=http://vision.princeton.edu/projects/2016/3DMatch/downloads/scene-fragments
 
