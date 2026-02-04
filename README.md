@@ -159,13 +159,13 @@ export KITTI_PATH=/path/to/kitti/; ./scripts/train_fcgf_kitti.sh
 
 | Model       | Normalized Feature  | Dataset | Voxel Size    | Feature Dimension | Performance                | Link   |
 |:-----------:|:-------------------:|:-------:|:-------------:|:-----------------:|:--------------------------:|:------:|
-| ResUNetBN2C | True                | 3DMatch | 2.5cm (0.025) | 32                | FMR: 0.9578 +- 0.0272      | [download](https://node1.chrischoy.org/data/publications/fcgf/2019-08-19_06-17-41.pth) |
-| ResUNetBN2C | True                | 3DMatch | 2.5cm (0.025) | 16                | FMR: 0.9442 +- 0.0345      | [download](https://node1.chrischoy.org/data/publications/fcgf/2019-09-18_14-15-59.pth) |
-| ResUNetBN2C | True                | 3DMatch | 5cm   (0.05)  | 32                | FMR: 0.9372 +- 0.0332      | [download](https://node1.chrischoy.org/data/publications/fcgf/2019-08-16_19-21-47.pth) |
-| ResUNetBN2C | False               | KITTI   | 20cm  (0.2)   | 32                | RTE: 0.0534m, RRE: 0.1704° | [download](https://node1.chrischoy.org/data/publications/fcgf/2019-07-31_19-30-19.pth) |
-| ResUNetBN2C | False               | KITTI   | 30cm  (0.3)   | 32                | RTE: 0.0607m, RRE: 0.2280° | [download](https://node1.chrischoy.org/data/publications/fcgf/2019-07-31_19-37-00.pth) |
-| ResUNetBN2C | True                | KITTI   | 30cm  (0.3)   | 16                | RTE: 0.0670m, RRE: 0.2295° | [download](https://node1.chrischoy.org/data/publications/fcgf/KITTI-v0.3-ResUNetBN2C-conv1-5-nout16.pth) |
-| ResUNetBN2C | True                | KITTI   | 30cm  (0.3)   | 32                | RTE: 0.0639m, RRE: 0.2253° | [download](https://node1.chrischoy.org/data/publications/fcgf/KITTI-v0.3-ResUNetBN2C-conv1-5-nout32.pth) |
+| ResUNetBN2C | True                | 3DMatch | 2.5cm (0.025) | 32                | FMR: 0.9578 +- 0.0272      | [download](https://drive.google.com/file/d/1XSlRGKVyeCttBhz4-m9q9JPCLX8aYoNv/view?usp=drive_link) |
+| ResUNetBN2C | True                | 3DMatch | 2.5cm (0.025) | 16                | FMR: 0.9442 +- 0.0345      | [download](https://drive.google.com/file/d/1qKEUkkPkdqbneRtOU8OYFCJYkRCiXW59/view?usp=drive_link) |
+| ResUNetBN2C | True                | 3DMatch | 5cm   (0.05)  | 32                | FMR: 0.9372 +- 0.0332      | [download](https://drive.google.com/file/d/1tEnWm7Z6iodlhCctVeh_xyZfvGfQoX61/view?usp=drive_link) |
+| ResUNetBN2C | False               | KITTI   | 20cm  (0.2)   | 32                | RTE: 0.0534m, RRE: 0.1704° | [download](https://drive.google.com/file/d/19aqJfKopgme5z6s_d3cwqts7C0_tOJaR/view?usp=drive_link) |
+| ResUNetBN2C | False               | KITTI   | 30cm  (0.3)   | 32                | RTE: 0.0607m, RRE: 0.2280° | [download](https://drive.google.com/file/d/1OnOcm6L55dCwza4kzFL5nouaSDj6L8X_/view?usp=drive_link) |
+| ResUNetBN2C | True                | KITTI   | 30cm  (0.3)   | 16                | RTE: 0.0670m, RRE: 0.2295° | [download](https://drive.google.com/file/d/1-eYBvkoZopajfHFiEU2O0fOPoQfULuMp/view?usp=drive_link) |
+| ResUNetBN2C | True                | KITTI   | 30cm  (0.3)   | 32                | RTE: 0.0639m, RRE: 0.2253° | [download](https://drive.google.com/file/d/1K_RIJu2Vvxum309FH6iNseMgb1aeTdw2/view?usp=drive_link) |
 
 
 ## Raw Data for FCGF Figure 4
