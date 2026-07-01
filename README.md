@@ -94,10 +94,18 @@ cd FCGF
 pip install -r requirements.txt
 ```
 
-For training, download the preprocessed 3DMatch benchmark dataset.
+For training, download the preprocessed 3DMatch benchmark dataset. The dataset is
+hosted on Hugging Face: [chrischoy/FCGF-3DMatch](https://huggingface.co/datasets/chrischoy/FCGF-3DMatch).
 
 ```
 ./scripts/download_datasets.sh /path/to/dataset/download/dir
+```
+
+This downloads the data into `/path/to/dataset/download/dir/threedmatch`. Alternatively,
+you can fetch it directly with the Hugging Face CLI:
+
+```
+hf download chrischoy/FCGF-3DMatch --repo-type dataset --local-dir /path/to/dataset/download/dir
 ```
 
 For KITTI training, follow the instruction on [KITTI Odometry website](http://www.cvlibs.net/datasets/kitti/eval_odometry.php) to download the KITTI odometry training set.

@@ -11,3 +11,4 @@ future-fstrings
 easydict
 joblib
 scikit-learn
+huggingface_hub

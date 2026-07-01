@@ -1,38 +1,26 @@
 #!/usr/bin/env bash
 
 DATA_DIR=$1
+REPO_ID="chrischoy/FCGF-3DMatch"
 
 function download() {
-    TMP_PATH="$DATA_DIR/tmp"
     echo "#################################"
     echo "Data Root Dir: ${DATA_DIR}"
-    echo "Download Path: ${TMP_PATH}"
+    echo "Dataset repo : ${REPO_ID} (Hugging Face)"
     echo "#################################"
-    urls=(
-        'http://node2.chrischoy.org/data/datasets/registration/threedmatch.tgz'
-    )
 
-    if [ ! -d "$TMP_PATH" ]; then
-        echo ">> Create temporary directory: ${TMP_PATH}"
-        mkdir -p "$TMP_PATH"
+    if [ ! -d "$DATA_DIR" ]; then
+        echo ">> Create data directory: ${DATA_DIR}"
+        mkdir -p "$DATA_DIR"
     fi
-    cd "$TMP_PATH"
 
-    echo ">> Start downloading"
-    echo ${urls[@]} | xargs -n 1 -P 3 wget --no-check-certificate -q -c --show-progress $0 
-
-    echo ">> Unpack .zip file"
-    for filename in *.tgz
-    do
-        tar -xvzf $filename -C ../
-    done
-
-    echo ">> Clear tmp directory"
-    cd ..
-    rm -rf ./tmp
+    echo ">> Downloading the preprocessed 3DMatch dataset from Hugging Face"
+    echo ">> (requires huggingface_hub: pip install huggingface_hub)"
+    python -c "from huggingface_hub import snapshot_download; \
+snapshot_download(repo_id='${REPO_ID}', repo_type='dataset', local_dir='${DATA_DIR}')"
 
     echo "#################################"
-    echo "Done!"
+    echo "Done! Data is in ${DATA_DIR}/threedmatch"
     echo "#################################"
 }
 
