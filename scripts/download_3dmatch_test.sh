@@ -1,5 +1,5 @@
 export DATA_DIR=$1
-export BASE_PATH=http://vision.princeton.edu/projects/2016/3DMatch/downloads/scene-fragments
+export BASE_PATH=https://3dvision.princeton.edu/projects/2016/3DMatch/downloads/scene-fragments
 
 function download() {
     TMP_PATH="$DATA_DIR/tmp"
