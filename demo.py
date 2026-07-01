@@ -13,12 +13,12 @@ import torch
 if not os.path.isfile('ResUNetBN2C-16feat-3conv.pth'):
   print('Downloading weights...')
   urlretrieve(
-      "https://node1.chrischoy.org/data/publications/fcgf/2019-09-18_14-15-59.pth",
+      "https://huggingface.co/chrischoy/FCGF/resolve/main/2019-09-18_14-15-59.pth",
       'ResUNetBN2C-16feat-3conv.pth')
 
 if not os.path.isfile('redkitchen-20.ply'):
   print('Downloading a mesh...')
-  urlretrieve("https://node1.chrischoy.org/data/publications/fcgf/redkitchen-20.ply",
+  urlretrieve("https://huggingface.co/chrischoy/FCGF/resolve/main/redkitchen-20.ply",
               'redkitchen-20.ply')
 
 
