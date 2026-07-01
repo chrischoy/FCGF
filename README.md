@@ -64,34 +64,58 @@ We color-coded FCGF features for pairs of 3D scans that are 10m apart for KITTI 
 Please follow the link [Youtube Video](https://www.youtube.com/watch?v=d0p0eTaB50k) or click the image to view the YouTube video of FCGF visualizations.
 [![](assets/text_scene000.gif)](https://www.youtube.com/watch?v=d0p0eTaB50k)
 
+## WarpConvNet backend
+
+FCGF runs on **[WarpConvNet](https://github.com/NVlabs/WarpConvNet)**
+instead of MinkowskiEngine. The sparse-convolutional `ResUNetBN2C` descriptor
+network is now maintained inside WarpConvNet and imported directly:
+
+```python
+from warpconvnet.models.fcgf import ResUNetBN2C
+model = ResUNetBN2C(in_channels=1, out_channels=32,
+                    normalize_feature=True, conv1_kernel_size=7)
+```
+
+The original MinkowskiEngine checkpoints in the [Model Zoo](#model-zoo) are
+still usable — convert them once with `wcn/convert_me_to_wcn.py` (WarpConvNet and
+MinkowskiEngine store the K³ conv kernel in a transposed spatial order, which the
+converter handles). All WarpConvNet-native training / eval / demo code lives in
+`wcn/`.
+
 ## Requirements
 
-- Ubuntu 14.04 or higher
-- CUDA 11.1 or higher
-- Python v3.7 or higher
-- Pytorch v1.6 or higher
-- [MinkowskiEngine](https://github.com/stanfordvl/MinkowskiEngine) v0.5 or higher
+- Linux x86_64, CUDA 12.x, Python 3.10–3.12, PyTorch 2.x
+- [WarpConvNet](https://github.com/NVlabs/WarpConvNet) (provides `warpconvnet.models.fcgf`) — installs from a prebuilt wheel, no compilation
+- `torch_scatter`, `scipy`, `numpy` (+ `plyfile` for the 3DMatch benchmark, `open3d` for the demo viz)
 
+> The legacy MinkowskiEngine code paths (`model/`, `lib/`, `scripts/`) are kept
+> for reference; the maintained path is the WarpConvNet one under `wcn/`.
 
 ## Installation & Dataset Download
 
+WarpConvNet ships **prebuilt binary wheels** (no compilation), so setup is one shot.
+Pick the wheel matching your PyTorch / CUDA / Python from the
+[WarpConvNet releases](https://github.com/NVlabs/WarpConvNet/releases). A
+known-good, broadly-compatible combo (Ampere/Ada/Hopper):
 
-We recommend conda for installation. First, create a conda environment with pytorch 1.5 or higher with
+```bash
+# 1. PyTorch 2.5 + CUDA 12.4
+pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cu124
 
+# 2. WarpConvNet prebuilt wheel (torch 2.5 / cu124 / Python 3.12; swap cp312 for your Python)
+pip install https://github.com/NVlabs/WarpConvNet/releases/download/v1.7.11/warpconvnet-1.7.11+torch2.5cu124-cp312-cp312-linux_x86_64.whl
+
+# 3. FCGF + remaining deps
+git clone https://github.com/chrischoy/FCGF.git && cd FCGF
+pip install scipy plyfile                 # + open3d for the demo viz
+pip install torch-scatter -f https://data.pyg.org/whl/torch-2.5.1+cu124.html
 ```
-conda create -n py3-fcgf python=3.7
-conda activate py3-fcgf
-conda install pytorch -c pytorch
-pip install git+https://github.com/NVIDIA/MinkowskiEngine.git
-```
 
-Next, download FCGF git repository and install the requirement from the FCGF root directory..
+For a newer stack (incl. Blackwell), use the `torch2.10cu128` or `torch2.11cu130`
+wheels instead — the asset name encodes `+torch<ver>cu<cuda>-cp<python>`. Verify with:
 
-```
-git clone https://github.com/chrischoy/FCGF.git
-cd FCGF
-# Do the following inside the conda environment
-pip install -r requirements.txt
+```bash
+python -c "from warpconvnet.models.fcgf import ResUNetBN2C; print('WarpConvNet FCGF OK')"
 ```
 
 For training, download the preprocessed 3DMatch benchmark dataset. The dataset is
@@ -113,54 +137,81 @@ For KITTI training, follow the instruction on [KITTI Odometry website](http://ww
 
 ## Demo: Extracting and color coding FCGF
 
-After installation, you can run the demo script by
+Download an original checkpoint, convert it to the WarpConvNet model, and run the
+demo — copy-paste:
 
-```
-python demo.py
+```bash
+# 1. Download a pretrained FCGF checkpoint (3DMatch, 32-dim) from the Model Zoo
+wget https://huggingface.co/chrischoy/FCGF/resolve/main/2019-08-19_06-17-41.pth -O fcgf-3dmatch.pth
+
+# 2. Convert the MinkowskiEngine weights to the WarpConvNet model (kernel transpose + name remap)
+python wcn/convert_me_to_wcn.py --me_ckpt fcgf-3dmatch.pth --out fcgf-3dmatch-wcn.pth
+
+# 3. Extract + color-code + visualize features on a kitchen scene
+python demo.py -m fcgf-3dmatch-wcn.pth
 ```
 
-The demo script will first extract FCGF features from a mesh file generated from a kitchen scene. Next, it will color code the features independent of their spatial location.
-After the color mapping using TSNE, the demo script will visualize the color coded features by coloring the input point cloud.
+`demo.py` accepts either the converted checkpoint (step 2) or an original ME
+checkpoint directly (it converts on load); running `python demo.py` with no args
+downloads and converts a default model for you. The demo extracts FCGF features,
+color-codes them independent of spatial location (t-SNE), and visualizes them.
 
 ![demo](./assets/demo.png)
 
 *You may have to rotate the scene to get the above visualization.*
 
 
-## Training and running 3DMatch benchmark
+## Training and running the 3DMatch benchmark
+
+Train the WarpConvNet-native model with hardest-contrastive loss:
 
 ```
-python train.py --threed_match_dir /path/to/threedmatch/
+python wcn/train.py \
+    --root /path/to/threedmatch \
+    --config_dir ./config \
+    --out_dir ./outputs/3dmatch \
+    --batch_size 4 --voxel_size 0.025 --conv1_kernel_size 7 --max_epoch 100
 ```
 
-For benchmarking the trained weights on 3DMatch, download the 3DMatch Geometric Registration Benchmark dataset from [here](http://3dmatch.cs.princeton.edu/) or run
+Feature-Match-Recall benchmark (extract features on the test fragments, then evaluate):
 
 ```
-bash ./scripts/download_3dmatch_test.sh /path/to/threedmatch_test/
+python wcn/eval_3dmatch.py --extract  --model ./outputs/3dmatch/model_best.pth \
+    --source /path/to/threedmatch_test --target ./features_tmp --voxel_size 0.025
+python wcn/eval_3dmatch.py --evaluate \
+    --source /path/to/threedmatch_test --target ./features_tmp --num_keypoints 5000
 ```
 
-and follow:
+To evaluate an original MinkowskiEngine checkpoint, first convert it:
 
 ```
-python -m scripts.benchmark_3dmatch.py \
-    --source /path/to/threedmatch \
-    --target ./features_tmp/ \
-    --voxel_size 0.025 \
-    --model ~/outputs/checkpoint.pth \
-    --extract_features --evaluate_feature_match_recall --with_cuda
+python wcn/convert_me_to_wcn.py --me_ckpt 2019-08-19_06-17-41.pth --out wcn-3dmatch-32feat.pth
 ```
 
+## Using the model directly
 
-## Training and testing on KITTI Odometry custom split
+```python
+import torch
+from warpconvnet.models.fcgf import ResUNetBN2C
+from warpconvnet.geometry.types.voxels import Voxels
 
-For KITTI training, follow the instruction on [KITTI Odometry website](http://www.cvlibs.net/datasets/kitti/eval_odometry.php) to download the KITTI odometry training set.
+model = ResUNetBN2C(in_channels=1, out_channels=32,
+                    normalize_feature=True, conv1_kernel_size=7).cuda().eval()
 
+coords = torch.floor(xyz / 0.025).int()             # [N, 3] voxel coords
+feats  = torch.ones((len(coords), 1))               # 1-D occupancy
+vox = Voxels([coords], [feats]).to("cuda")
+descriptors = model(vox).feature_tensor             # [N, 32], L2-normalized
 ```
-export KITTI_PATH=/path/to/kitti/; ./scripts/train_fcgf_kitti.sh
-```
 
-## Registration Test on 3DMatch
+See `wcn/features.py::extract_features` for the full voxelize→forward helper.
 
+## KITTI Odometry
+
+KITTI pretrained weights are in the [Model Zoo](#model-zoo) and load into the same
+`ResUNetBN2C` (via `wcn/convert_me_to_wcn.py`, `conv1_kernel_size=5`, `voxel_size=0.3`).
+The WarpConvNet-native KITTI data pipeline is a work in progress; for now use the
+legacy `lib/data_loaders.py` (MinkowskiEngine) as the reference implementation.
 
 
 ## Model Zoo

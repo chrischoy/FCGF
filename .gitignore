@@ -8,3 +8,4 @@ outputs/
 *.pyc
 *.ply
 *.pth
+wcn/slurm/
