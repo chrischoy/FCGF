@@ -6,6 +6,7 @@ Extracting geometric features from 3D scans or point clouds is the first step in
 
 ## News
 
+- 2026-07-02 FCGF now runs on **[WarpConvNet](https://github.com/NVlabs/WarpConvNet)** instead of MinkowskiEngine. The maintained code path lives under `wcn/` and installs from a prebuilt wheel (no compilation). The original MinkowskiEngine checkpoints still work — convert them once with `wcn/convert_me_to_wcn.py`. See the [WarpConvNet backend](#warpconvnet-backend) section.
 - 2020-10-02 Measure the FCGF speedup on v0.5 on [MinkowskiEngineBenchmark](https://github.com/chrischoy/MinkowskiEngineBenchmark). The speedup ranges from 2.7x to 7.7x depending on the batch size.
 - 2020-09-04 Updates on ME v0.5 further speed up the inference time from 13.2ms to 11.8ms. As a reference, ME v0.4 takes 37ms.
 - 2020-08-18 Merged the v0.5 to the master with v0.5 installation. You can now use the full GPU support for sparse tensor hi-COO representation for faster training and inference.
@@ -93,7 +94,7 @@ converter handles). All WarpConvNet-native training / eval / demo code lives in
 
 ## Installation & Dataset Download
 
-WarpConvNet ships **prebuilt binary wheels** (no compilation), so setup is one shot.
+[WarpConvNet](https://github.com/NVlabs/WarpConvNet) ships **prebuilt binary wheels** (no compilation), so setup is one shot.
 Pick the wheel matching your PyTorch / CUDA / Python from the
 [WarpConvNet releases](https://github.com/NVlabs/WarpConvNet/releases). A
 known-good, broadly-compatible combo (Ampere/Ada/Hopper):
@@ -137,7 +138,7 @@ For KITTI training, follow the instruction on [KITTI Odometry website](http://ww
 
 ## Demo: Extracting and color coding FCGF
 
-Download an original checkpoint, convert it to the WarpConvNet model, and run the
+Download an original checkpoint, convert it to the [WarpConvNet](https://github.com/NVlabs/WarpConvNet) model, and run the
 demo — copy-paste:
 
 ```bash
@@ -163,7 +164,7 @@ color-codes them independent of spatial location (t-SNE), and visualizes them.
 
 ## Training and running the 3DMatch benchmark
 
-Train the WarpConvNet-native model with hardest-contrastive loss:
+Train the [WarpConvNet](https://github.com/NVlabs/WarpConvNet)-native model with hardest-contrastive loss:
 
 ```
 python wcn/train.py \
@@ -210,7 +211,7 @@ See `wcn/features.py::extract_features` for the full voxelize→forward helper.
 
 KITTI pretrained weights are in the [Model Zoo](#model-zoo) and load into the same
 `ResUNetBN2C` (via `wcn/convert_me_to_wcn.py`, `conv1_kernel_size=5`, `voxel_size=0.3`).
-The WarpConvNet-native KITTI data pipeline is a work in progress; for now use the
+The [WarpConvNet](https://github.com/NVlabs/WarpConvNet)-native KITTI data pipeline is a work in progress; for now use the
 legacy `lib/data_loaders.py` (MinkowskiEngine) as the reference implementation.
 
 
